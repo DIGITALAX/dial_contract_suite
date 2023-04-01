@@ -14,9 +14,16 @@ describe("Child FGO Test Suite", () => {
   });
 
   describe("addAdmin", () => {
+    it("the deployer should be an admin", async () => {
+      expect(
+        await accessControl.connect(admin).isAdmin(admin.address)
+      ).to.equal(true);
+    });
+
     it("should fail when non-admin adds a new admin", async () => {
       await (
-        expect(accessControl.connect(nonAdmin).addAdmin(writer)).to.be as any
+        expect(accessControl.connect(nonAdmin).addAdmin(writer.address)).to
+          .be as any
       ).revertedWith("Only admins can perform this action");
     });
 
@@ -27,32 +34,37 @@ describe("Child FGO Test Suite", () => {
 
     it("should fail when an admin adds themselves", async () => {
       await (
-        expect(accessControl.connect(admin).addAdmin(admin)).to.be as any
+        expect(accessControl.connect(admin).addAdmin(admin.address)).to
+          .be as any
       ).revertedWith("Cannot add existing admin or yourself");
     });
 
     it("should fail when an admin already exists", async () => {
+      await accessControl.addAdmin(nonAdmin.address);
       await (
-        expect(accessControl.connect(admin).addAdmin(nonAdmin)).to.be as any
+        expect(accessControl.connect(admin).addAdmin(nonAdmin.address)).to
+          .be as any
       ).revertedWith("Cannot add existing admin or yourself");
     });
   });
 
   describe("removeAdmin", () => {
     it("should remove an existing admin", async () => {
-      await accessControl.removeAdmin(admin);
-      expect(await accessControl.isAdmin(admin)).to.equal(false);
+      await accessControl.addAdmin(nonAdmin.address);
+      await accessControl.removeAdmin(nonAdmin.address);
+      expect(await accessControl.isAdmin(nonAdmin.address)).to.equal(false);
     });
 
     it("should fail when non-admin removes an admin", async () => {
       await (
-        expect(accessControl.connect(nonAdmin).removeAdmin(admin)).to.be as any
+        expect(accessControl.connect(nonAdmin).removeAdmin(admin.address)).to
+          .be as any
       ).revertedWith("Only admins can perform this action");
     });
 
     it("should fail when an admin removes themselves", async () => {
       await (
-        expect(accessControl.connect(nonAdmin).removeAdmin(nonAdmin)).to
+        expect(accessControl.removeAdmin(admin.address)).to
           .be as any
       ).revertedWith("Cannot remove yourself as admin");
     });

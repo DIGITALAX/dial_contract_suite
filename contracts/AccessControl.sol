@@ -3,7 +3,8 @@
 pragma solidity ^0.8.9;
 
 contract AccessControl {
-    address public admin;
+    string public symbol;
+    string public name;
     mapping(address => bool) public admins;
     mapping(address => bool) public writers;
 
@@ -20,21 +21,22 @@ contract AccessControl {
         _;
     }
 
-    constructor() {
-        admin = msg.sender;
-        admins[admin] = true;
+    constructor(string memory _name, string memory _symbol) {
+        symbol = _symbol;
+        name = _name;
+        admins[msg.sender] = true;
     }
 
     function addAdmin(address _admin) public onlyAdmin {
         require(
-            _admin != admin && !admins[_admin],
+            !admins[_admin] && _admin != msg.sender,
             "Cannot add existing admin or yourself"
         );
         admins[_admin] = true;
     }
 
     function removeAdmin(address _admin) public onlyAdmin {
-        require(_admin != admin, "Cannot remove yourself as admin");
+        require(_admin != msg.sender, "Cannot remove yourself as admin");
         admins[_admin] = false;
     }
 
