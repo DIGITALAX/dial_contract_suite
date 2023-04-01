@@ -3,10 +3,9 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./AccessControl.sol";
 
-contract TheDialWhitelist is Ownable, ERC721("TheDialWhitelist", "DIAL") {
+contract TheDialWhitelist is ERC721("TheDialWhitelist", "DIAL") {
     AccessControl private accessControl;
 
     uint256 public tokenId;
@@ -20,7 +19,11 @@ contract TheDialWhitelist is Ownable, ERC721("TheDialWhitelist", "DIAL") {
         tokenId = 0;
     }
 
-    function removeFromWhitelist(address _address) public onlyOwner {
+    function removeFromWhitelist(address _address) public {
+        require(
+            accessControl.isAdmin(msg.sender),
+            "Only admin can perform this action"
+        );
         whitelist[_address] = false;
     }
 
@@ -30,9 +33,10 @@ contract TheDialWhitelist is Ownable, ERC721("TheDialWhitelist", "DIAL") {
             "Only admin can perform this action"
         );
         whitelist[_to] = true;
-        addressToTokenId[_to] = tokenId++;
+        addressToTokenId[_to] = tokenId;
         _safeMint(_to, _tokenId);
         _setTokenURI(_tokenId, _uri);
+        tokenId++;
     }
 
     function _setTokenURI(

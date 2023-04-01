@@ -1,14 +1,10 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("Child FGO Test Suite", () => {
-  let admin: any,
-    nonAdmin: any,
-    writer: any,
-    nonWriter: any,
-    accessControl: any;
+describe("Access Control Test Suite", () => {
+  let admin: any, nonAdmin: any, writer: any, accessControl: any;
   beforeEach(async () => {
-    [admin, writer, nonAdmin, nonWriter] = await ethers.getSigners();
+    [admin, writer, nonAdmin] = await ethers.getSigners();
     const AccessControl = await ethers.getContractFactory("AccessControl");
     accessControl = await AccessControl.deploy("AccessControl", "ACON");
   });
@@ -64,8 +60,7 @@ describe("Child FGO Test Suite", () => {
 
     it("should fail when an admin removes themselves", async () => {
       await (
-        expect(accessControl.removeAdmin(admin.address)).to
-          .be as any
+        expect(accessControl.removeAdmin(admin.address)).to.be as any
       ).revertedWith("Cannot remove yourself as admin");
     });
   });
@@ -95,6 +90,16 @@ describe("Child FGO Test Suite", () => {
         expect(accessControl.connect(nonAdmin).removeWriter(writer.address)).to
           .be as any
       ).revertedWith("Only admins can perform this action");
+    });
+  });
+
+  describe("constants", () => {
+    it("returns the symbol", async () => {
+      expect(await accessControl.symbol()).to.equal("ACON");
+    });
+
+    it("returns the name", async () => {
+      expect(await accessControl.name()).to.equal("AccessControl");
     });
   });
 });
