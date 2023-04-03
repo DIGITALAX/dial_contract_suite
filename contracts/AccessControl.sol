@@ -5,8 +5,14 @@ pragma solidity ^0.8.9;
 contract AccessControl {
     string public symbol;
     string public name;
+
     mapping(address => bool) public admins;
     mapping(address => bool) public writers;
+
+    event AdminAdded(address indexed admin);
+    event AdminRemoved(address indexed admin);
+    event WriterAdded(address indexed writer);
+    event WriterRemoved(address indexed writer);
 
     modifier onlyAdmin() {
         require(admins[msg.sender], "Only admins can perform this action");
@@ -27,25 +33,29 @@ contract AccessControl {
         admins[msg.sender] = true;
     }
 
-    function addAdmin(address _admin) public onlyAdmin {
+    function addAdmin(address _admin) external onlyAdmin {
         require(
             !admins[_admin] && _admin != msg.sender,
             "Cannot add existing admin or yourself"
         );
         admins[_admin] = true;
+        emit AdminAdded(_admin);
     }
 
-    function removeAdmin(address _admin) public onlyAdmin {
+    function removeAdmin(address _admin) external onlyAdmin {
         require(_admin != msg.sender, "Cannot remove yourself as admin");
         admins[_admin] = false;
+        emit AdminRemoved(_admin);
     }
 
-    function addWriter(address _writer) public onlyAdmin {
+    function addWriter(address _writer) external onlyAdmin {
         writers[_writer] = true;
+        emit WriterAdded(_writer);
     }
 
-    function removeWriter(address _writer) public onlyAdmin {
+    function removeWriter(address _writer) external onlyAdmin {
         writers[_writer] = false;
+        emit WriterRemoved(_writer);
     }
 
     function isAdmin(address _admin) public view returns (bool) {

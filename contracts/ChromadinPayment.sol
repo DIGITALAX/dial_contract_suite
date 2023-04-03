@@ -1,0 +1,70 @@
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity ^0.8.9;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./AccessControl.sol";
+
+contract ChromadinPayment {
+    AccessControl public accessControl;
+    address[] public verifiedPaymentTokens;
+
+    mapping(address => bool) public isVerifiedPaymentToken;
+
+    modifier onlyAdmin() {
+        require(
+            accessControl.isAdmin(msg.sender),
+            "Access Control: Only admin can perform this action"
+        );
+        _;
+    }
+
+    event AccessControlUpdated(
+        address indexed oldAccessControl,
+        address indexed newAccessControl,
+        address updater
+    );
+
+    constructor(address _accessControlAddress) {
+        accessControl = AccessControl(_accessControlAddress);
+    }
+
+    function setVerifiedPaymentTokens(
+        address[] calldata _paymentTokens
+    ) public {
+        require(
+            accessControl.isAdmin(msg.sender),
+            "Only admin can verify payment tokens"
+        );
+
+        for (uint256 i = 0; i < verifiedPaymentTokens.length; i++) {
+            isVerifiedPaymentToken[verifiedPaymentTokens[i]] = false;
+        }
+        delete verifiedPaymentTokens;
+
+        for (uint256 i = 0; i < _paymentTokens.length; i++) {
+            isVerifiedPaymentToken[_paymentTokens[i]] = true;
+            verifiedPaymentTokens.push(_paymentTokens[i]);
+        }
+    }
+
+    function viewVerifiedPaymentTokens()
+        public
+        view
+        returns (address[] memory)
+    {
+        return verifiedPaymentTokens;
+    }
+
+    function updateAccessControl(
+        address _newAccessControlAddress
+    ) external onlyAdmin {
+        address oldAddress = address(accessControl);
+        accessControl = AccessControl(_newAccessControlAddress);
+        emit AccessControlUpdated(
+            oldAddress,
+            _newAccessControlAddress,
+            msg.sender
+        );
+    }
+}
