@@ -36,7 +36,7 @@ contract ChromadinDrop {
         uint256 collectionId
     );
 
-    event DropURIAdded(uint256 indexed dropId, string dropURI);
+    event DropURIUpdated(uint256 indexed dropId, string dropURI);
 
     event AccessControlUpdated(
         address indexed oldAccessControls,
@@ -50,6 +50,8 @@ contract ChromadinDrop {
         address updater
     );
 
+    event DropDeleted(uint256 indexed dropId, address deleter);
+
     modifier onlyCreator(uint256 _collectionId) {
         require(
             chromadinCollection.getCollectionCreator(_collectionId) ==
@@ -59,7 +61,7 @@ contract ChromadinDrop {
         _;
     }
 
-    modifier onlyAdmin {
+    modifier onlyAdmin() {
         require(
             accessControl.isAdmin(msg.sender),
             "AccessControl: Only admin can perform this action"
@@ -87,8 +89,19 @@ contract ChromadinDrop {
         for (uint256 i = 0; i < _collectionIds.length; i++) {
             require(
                 chromadinCollection.getCollectionCreator(_collectionIds[i]) ==
-                    msg.sender,
+                    msg.sender &&
+                    (accessControl.isWriter(msg.sender) ||
+                        accessControl.isAdmin(msg.sender)),
                 "ChromadinDrop: Only the owner of a collection can add it to a drop"
+            );
+            require(
+                _collectionIds[i] != 0 &&
+                    _collectionIds[i] <= chromadinCollection.collectionSupply(),
+                "ChromadinDrop: Collection does not exist"
+            );
+            require(
+                collectionIdToDrop[_collectionIds[i]] == 0,
+                "ChromadinDrop: Collection is already part of another existing drop"
             );
         }
 
@@ -115,9 +128,18 @@ contract ChromadinDrop {
         uint256 _dropId,
         uint256 _collectionId
     ) external onlyCreator(_collectionId) {
-        require(drops[_dropId].dropId != 0, "ChromadinDrop: Drop does not exist");
+        require(
+            drops[_dropId].dropId != 0,
+            "ChromadinDrop: Drop does not exist"
+        );
+        require(
+            collectionIdToDrop[_collectionId] == 0 ||
+                collectionIdToDrop[_collectionId] == _dropId,
+            "ChromadinDrop: Collection is already part of another existing drop"
+        );
 
         drops[_dropId].collectionIds.push(_collectionId);
+        collectionIdToDrop[_collectionId] = dropId;
 
         emit CollectionAddedToDrop(_dropId, _collectionId);
     }
@@ -138,7 +160,10 @@ contract ChromadinDrop {
             collectionIdToDrop[_collectionId]
         ].collectionIds;
         uint256 collectionIndex = findIndex(collectionIds, _collectionId);
-        require(collectionIndex < collectionIds.length, "ChromadinDrop: Collection not found");
+        require(
+            collectionIndex < collectionIds.length,
+            "ChromadinDrop: Collection not found"
+        );
 
         collectionIds[collectionIndex] = collectionIds[
             collectionIds.length - 1
@@ -163,6 +188,32 @@ contract ChromadinDrop {
         return array.length;
     }
 
+    function deleteDrop(uint256 _dropId) external {
+        require(
+            drops[_dropId].dropId != 0,
+            "ChromadinDrop: Drop does not exist"
+        );
+        for (uint256 i = 0; i < drops[_dropId].collectionIds.length; i++) {
+            require(
+                chromadinCollection.getCollectionCreator(
+                    drops[_dropId].collectionIds[i]
+                ) ==
+                    msg.sender &&
+                    (accessControl.isWriter(msg.sender) ||
+                        accessControl.isAdmin(msg.sender)),
+                "ChromadinDrop: Only the owner of a collection can add it to a drop"
+            );
+        }
+
+        uint256[] memory collectionIds = drops[_dropId].collectionIds;
+        for (uint256 i = 0; i < collectionIds.length; i++) {
+            collectionIdToDrop[collectionIds[i]] = 0;
+        }
+        delete drops[_dropId];
+
+        emit DropDeleted(_dropId, msg.sender);
+    }
+
     function updateAccessControl(
         address _newAccessControlAddress
     ) external onlyAdmin {
@@ -175,7 +226,7 @@ contract ChromadinDrop {
         );
     }
 
-    function updateChromadinNFT(
+    function updateChromadinCollection(
         address _newChromadinCollectionAddress
     ) external onlyAdmin {
         address oldAddress = address(chromadinCollection);
@@ -187,5 +238,39 @@ contract ChromadinDrop {
             _newChromadinCollectionAddress,
             msg.sender
         );
+    }
+
+    function getCollectionsInDrop(
+        uint256 _dropId
+    ) public view returns (uint256[] memory) {
+        return drops[_dropId].collectionIds;
+    }
+
+    function getDropURI(uint256 _dropId) public view returns (string memory) {
+        return drops[_dropId].dropURI;
+    }
+
+    function getDropCreator(uint256 _dropId) public view returns (address) {
+        return drops[_dropId].creator;
+    }
+
+    function getDropTimestamp(uint256 _dropId) public view returns (uint256) {
+        return drops[_dropId].timestamp;
+    }
+
+    function setDropURI(uint256 _dropId, string memory _dropURI) external {
+        for (uint256 i = 0; i < drops[_dropId].collectionIds.length; i++) {
+            require(
+                chromadinCollection.getCollectionCreator(
+                    drops[_dropId].collectionIds[i]
+                ) ==
+                    msg.sender &&
+                    (accessControl.isWriter(msg.sender) ||
+                        accessControl.isAdmin(msg.sender)),
+                "ChromadinDrop: Only the owner of a drop can edit a drop"
+            );
+        }
+        drops[_dropId].dropURI = _dropURI;
+        emit DropURIUpdated(_dropId, _dropURI);
     }
 }
