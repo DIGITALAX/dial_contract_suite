@@ -9,6 +9,8 @@ contract ChromadinDrop {
     AccessControl public accessControl;
     ChromadinCollection public chromadinCollection;
     uint256 public dropId;
+    string public symbol;
+    string public name;
 
     struct Drop {
         uint256 dropId;
@@ -57,7 +59,7 @@ contract ChromadinDrop {
         _;
     }
 
-    modifier onlyAdmin() {
+    modifier onlyAdmin {
         require(
             accessControl.isAdmin(msg.sender),
             "Only admin can perform this action"
@@ -67,16 +69,20 @@ contract ChromadinDrop {
 
     constructor(
         address _chromadinCollectionAddress,
-        address _accessControlAddress
+        address _accessControlAddress,
+        string memory _symbol,
+        string memory _name
     ) {
         chromadinCollection = ChromadinCollection(_chromadinCollectionAddress);
         accessControl = AccessControl(_accessControlAddress);
         dropId = 0;
+        symbol = _symbol;
+        name = _name;
     }
 
     function createDrop(
-        uint256[] calldata _collectionIds,
-        string calldata _dropURI
+        uint256[] memory _collectionIds,
+        string memory _dropURI
     ) external {
         for (uint256 i = 0; i < _collectionIds.length; i++) {
             require(

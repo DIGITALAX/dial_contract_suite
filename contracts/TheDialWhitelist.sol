@@ -20,7 +20,7 @@ contract TheDialWhitelist is ERC721("TheDialWhitelist", "DIAL") {
         address updater
     );
 
-    modifier onlyAdmin() {
+    modifier onlyAdmin {
         require(
             accessControl.isAdmin(msg.sender),
             "Access Control: Only admin can perform this action"
@@ -51,7 +51,7 @@ contract TheDialWhitelist is ERC721("TheDialWhitelist", "DIAL") {
         whitelist[_address] = false;
     }
 
-    function mint(address _to, string calldata _uri) external {
+    function mint(address _to, string memory _uri) external {
         require(
             accessControl.isAdmin(msg.sender),
             "Only admin can perform this action"
@@ -66,7 +66,7 @@ contract TheDialWhitelist is ERC721("TheDialWhitelist", "DIAL") {
 
     function _setTokenURI(
         uint256 _tokenId,
-        string calldata _uri
+        string memory _uri
     ) internal virtual {
         require(
             _exists(_tokenId),

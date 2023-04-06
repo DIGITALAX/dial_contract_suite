@@ -11,7 +11,7 @@ contract ChromadinPayment {
 
     mapping(address => bool) public isVerifiedPaymentToken;
 
-    modifier onlyAdmin() {
+    modifier onlyAdmin {
         require(
             accessControl.isAdmin(msg.sender),
             "Access Control: Only admin can perform this action"
@@ -30,7 +30,7 @@ contract ChromadinPayment {
     }
 
     function setVerifiedPaymentTokens(
-        address[] calldata _paymentTokens
+        address[] memory _paymentTokens
     ) public {
         require(
             accessControl.isAdmin(msg.sender),

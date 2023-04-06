@@ -14,12 +14,12 @@ contract AccessControl {
     event WriterAdded(address indexed writer);
     event WriterRemoved(address indexed writer);
 
-    modifier onlyAdmin() {
+    modifier onlyAdmin {
         require(admins[msg.sender], "Only admins can perform this action");
         _;
     }
 
-    modifier onlyWrite() {
+    modifier onlyWrite {
         require(
             writers[msg.sender],
             "Only authorized writers can perform this action"

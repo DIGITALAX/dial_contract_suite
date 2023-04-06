@@ -15,6 +15,8 @@ contract ChromadinMarketplace {
     ChromadinPayment public chromadinPayment;
     ChromadinNFT public chromadinNFT;
     AccessControl public accessControl;
+    string public symbol;
+    string public name;
 
     mapping(address => string) public buyerToFulfillment;
 
@@ -27,7 +29,7 @@ contract ChromadinMarketplace {
         _;
     }
 
-    modifier onlyAdmin() {
+    modifier onlyAdmin {
         require(
             accessControl.isAdmin(msg.sender),
             "Access Control: Only admin can perform this action"
@@ -64,22 +66,24 @@ contract ChromadinMarketplace {
 
     constructor(
         address _collectionContract,
-        address _escrowContract,
         address _paymentContract,
         address _accessControlContract,
-        address _NFTContract
+        address _NFTContract,
+        string memory _symbol,
+        string memory _name
     ) {
         chromadinCollection = ChromadinCollection(_collectionContract);
-        chromadinEscrow = ChromadinEscrow(_escrowContract);
         chromadinPayment = ChromadinPayment(_paymentContract);
         accessControl = AccessControl(_accessControlContract);
         chromadinNFT = ChromadinNFT(_NFTContract);
+        symbol = _symbol;
+        name = _name;
     }
 
     function buyTokens(
-        uint256[] calldata _tokenIds,
+        uint256[] memory _tokenIds,
         address _chosenTokenAddress,
-        string calldata _fulfillmentContent
+        string memory _fulfillmentContent
     ) external {
         uint256 totalPrice = 0;
         uint256[] memory prices = new uint256[](_tokenIds.length);
@@ -156,7 +160,7 @@ contract ChromadinMarketplace {
         );
     }
 
-    function updateChromadinEscrow(
+    function setChromadinEscrow(
         address _newChromadinEscrowAddress
     ) external onlyAdmin {
         address oldAddress = address(chromadinEscrow);

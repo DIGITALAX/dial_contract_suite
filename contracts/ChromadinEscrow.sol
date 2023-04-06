@@ -14,6 +14,8 @@ contract ChromadinEscrow is ERC721Holder {
     ChromadinCollection public chromadinCollection;
     ChromadinMarketplace public chromadinMarketplace;
     ChromadinNFT public chromadinNFT;
+    string public symbol;
+    string public name;
 
     mapping(uint256 => bool) private _deposited;
 
@@ -42,7 +44,9 @@ contract ChromadinEscrow is ERC721Holder {
         address _chromadinCollectionContract,
         address _chromadinMarketplaceContract,
         address _accessControlContract,
-        address _chromadinNFTContract
+        address _chromadinNFTContract,
+        string memory _symbol,
+        string memory _name
     ) {
         chromadinCollection = ChromadinCollection(_chromadinCollectionContract);
         chromadinMarketplace = ChromadinMarketplace(
@@ -50,9 +54,11 @@ contract ChromadinEscrow is ERC721Holder {
         );
         accessControl = AccessControl(_accessControlContract);
         chromadinNFT = ChromadinNFT(_chromadinNFTContract);
+        symbol = _symbol;
+        name = _name;
     }
 
-    modifier onlyAdmin() {
+    modifier onlyAdmin {
         require(
             accessControl.isAdmin(msg.sender),
             "AccessControl: Only admin can perform this action"
@@ -60,7 +66,7 @@ contract ChromadinEscrow is ERC721Holder {
         _;
     }
 
-    modifier onlyDepositer() {
+    modifier onlyDepositer {
         require(
             msg.sender == address(chromadinCollection),
             "ChromadinEscrow: Only the Chromadin Collection contract can call this function"

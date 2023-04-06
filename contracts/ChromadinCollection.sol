@@ -7,6 +7,7 @@ import "./AccessControl.sol";
 import "./ChromadinPayment.sol";
 import "./ChromadinDrop.sol";
 import "./ChromadinEscrow.sol";
+import "hardhat/console.sol";
 
 contract ChromadinCollection {
     ChromadinNFT public chromadinNFT;
@@ -17,11 +18,9 @@ contract ChromadinCollection {
     uint256 public collectionId;
     string public symbol;
     string public name;
-    string[] public irlItems;
 
     struct Collection {
         uint256 collectionId;
-        string[] irlItems;
         address[] acceptedTokens;
         uint256[] prices;
         uint256[] tokenIds;
@@ -38,6 +37,7 @@ contract ChromadinCollection {
         uint256 indexed collectionId,
         string name,
         string uri,
+        uint256 amount,
         address owner
     );
 
@@ -57,13 +57,6 @@ contract ChromadinCollection {
         uint256 indexed collectionId,
         string oldURI,
         string newURI,
-        address updater
-    );
-
-    event CollectionIRLItemsUpdated(
-        uint256 indexed collectionId,
-        string[] oldIRLItems,
-        string[] newIRLItems,
         address updater
     );
 
@@ -119,7 +112,7 @@ contract ChromadinCollection {
         _;
     }
 
-    modifier onlyAdmin() {
+    modifier onlyAdmin {
         require(
             accessControl.isAdmin(msg.sender),
             "Only admin can perform this action"
@@ -131,27 +124,23 @@ contract ChromadinCollection {
         address _chromadinNFTAddress,
         address _accessControlAddress,
         address _chromadinPaymentAddress,
-        address _chromadinDropAddress,
-        address _chromadinEscrowAddress,
         string memory _symbol,
         string memory _name
     ) {
         chromadinNFT = ChromadinNFT(_chromadinNFTAddress);
         accessControl = AccessControl(_accessControlAddress);
         chromadinPayment = ChromadinPayment(_chromadinPaymentAddress);
-        chromadinDrop = ChromadinDrop(_chromadinDropAddress);
-        chromadinEscrow = ChromadinEscrow(_chromadinEscrowAddress);
         collectionId = 0;
         symbol = _symbol;
         name = _name;
     }
 
     function mintCollection(
-        string[] calldata _uris,
-        string calldata _collectionName,
-        address[] calldata _acceptedTokens,
-        uint256[] calldata _tokenPrices,
-        string[] calldata _irlItems
+        string memory _uri,
+        uint256 _amount,
+        string memory _collectionName,
+        address[] memory _acceptedTokens,
+        uint256[] memory _tokenPrices
     ) external {
         require(_tokenPrices.length == _acceptedTokens.length, "Invalid input");
         require(
@@ -168,21 +157,20 @@ contract ChromadinCollection {
 
         collectionId++;
 
-        uint256[] memory tokenIds = new uint256[](_uris.length);
+        uint256[] memory tokenIds = new uint256[](_amount);
 
-        for (uint256 i = 0; i < _uris.length; i++) {
-            tokenIds[i] = chromadinNFT.totalSupply() - _uris.length + i + 1;
+        for (uint256 i = 0; i < _amount; i++) {
+            tokenIds[i] = chromadinNFT.totalSupply() + i + 1;
         }
 
         Collection memory newCollection = Collection({
             collectionId: collectionId,
-            irlItems: _irlItems,
             acceptedTokens: _acceptedTokens,
             prices: _tokenPrices,
             tokenIds: tokenIds,
             creator: msg.sender,
             name: _collectionName,
-            uri: _uris[0],
+            uri: _uri,
             isBurned: false,
             timestamp: block.timestamp
         });
@@ -190,10 +178,10 @@ contract ChromadinCollection {
         collections[collectionId] = newCollection;
 
         chromadinNFT.mintBatch(
-            _uris,
+            _uri,
+            _amount,
             collectionId,
             msg.sender,
-            _irlItems,
             _acceptedTokens,
             _tokenPrices
         );
@@ -201,7 +189,8 @@ contract ChromadinCollection {
         emit CollectionMinted(
             collectionId,
             _collectionName,
-            _uris[0],
+            _uri,
+            _amount,
             msg.sender
         );
     }
@@ -271,7 +260,7 @@ contract ChromadinCollection {
         );
     }
 
-    function updateChromadinEscrow(
+    function setChromadinEscrow(
         address _newChromadinEscrowAddress
     ) external onlyAdmin {
         address oldAddress = address(chromadinEscrow);
@@ -283,7 +272,7 @@ contract ChromadinCollection {
         );
     }
 
-    function updateChromadinDrop(
+    function setChromadinDrop(
         address _newChromadinDropAddress
     ) external onlyAdmin {
         address oldAddress = address(chromadinDrop);
@@ -305,12 +294,6 @@ contract ChromadinCollection {
         uint256 _collectionId
     ) public view returns (string memory) {
         return collections[_collectionId].uri;
-    }
-
-    function getCollectionIRLItems(
-        uint256 _collectionId
-    ) public view returns (string[] memory) {
-        return collections[_collectionId].irlItems;
     }
 
     function getCollectionAcceptedTokens(
@@ -350,7 +333,7 @@ contract ChromadinCollection {
     }
 
     function setCollectionName(
-        string calldata _collectionName,
+        string memory _collectionName,
         uint256 _collectionId
     ) external onlyCreator(_collectionId) {
         string memory oldName = collections[_collectionId].name;
@@ -364,7 +347,7 @@ contract ChromadinCollection {
     }
 
     function setCollectionURI(
-        string calldata _newURI,
+        string memory _newURI,
         uint256 _collectionId
     ) external onlyCreator(_collectionId) {
         string memory oldURI = collections[_collectionId].uri;
@@ -374,7 +357,7 @@ contract ChromadinCollection {
 
     function setCollectionPrices(
         uint256 _collectionId,
-        uint256[] calldata _newCollectionPrices
+        uint256[] memory _newCollectionPrices
     ) external onlyCreator(_collectionId) {
         uint256[] memory tokenIds = collections[_collectionId].tokenIds;
         for (uint256 i = 0; i < tokenIds.length; i++) {
@@ -390,27 +373,9 @@ contract ChromadinCollection {
         );
     }
 
-    function setCollectionIRLItems(
-        uint256 _collectionId,
-        string[] calldata _newIRLItems
-    ) external onlyCreator(_collectionId) {
-        uint256[] memory tokenIds = collections[_collectionId].tokenIds;
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            chromadinNFT.setTokenIRLItems(tokenIds[i], _newIRLItems);
-        }
-        string[] memory oldIRL = collections[_collectionId].irlItems;
-        collections[_collectionId].irlItems = _newIRLItems;
-        emit CollectionIRLItemsUpdated(
-            _collectionId,
-            oldIRL,
-            _newIRLItems,
-            msg.sender
-        );
-    }
-
     function setCollectionAcceptedTokens(
         uint256 _collectionId,
-        address[] calldata _newAcceptedTokens
+        address[] memory _newAcceptedTokens
     ) external onlyCreator(_collectionId) {
         uint256[] memory tokenIds = collections[_collectionId].tokenIds;
         for (uint256 i = 0; i < tokenIds.length; i++) {
