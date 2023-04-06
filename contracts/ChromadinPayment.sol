@@ -31,11 +31,7 @@ contract ChromadinPayment {
 
     function setVerifiedPaymentTokens(
         address[] memory _paymentTokens
-    ) public {
-        require(
-            accessControl.isAdmin(msg.sender),
-            "Only admin can verify payment tokens"
-        );
+    ) public onlyAdmin {
 
         for (uint256 i = 0; i < verifiedPaymentTokens.length; i++) {
             isVerifiedPaymentToken[verifiedPaymentTokens[i]] = false;
@@ -48,7 +44,7 @@ contract ChromadinPayment {
         }
     }
 
-    function viewVerifiedPaymentTokens()
+    function getVerifiedPaymentTokens()
         public
         view
         returns (address[] memory)
