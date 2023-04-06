@@ -59,7 +59,7 @@ contract ChromadinDrop {
         _;
     }
 
-    modifier onlyAdmin {
+    modifier onlyAdmin() {
         require(
             accessControl.isAdmin(msg.sender),
             "Only admin can perform this action"
@@ -122,12 +122,16 @@ contract ChromadinDrop {
         emit CollectionAddedToDrop(_dropId, _collectionId);
     }
 
-    function removeCollectionFromDrop(
-        uint256 _collectionId
-    ) external onlyCreator(_collectionId) {
+    function removeCollectionFromDrop(uint256 _collectionId) external {
         require(
             drops[collectionIdToDrop[_collectionId]].dropId != 0,
             "Collection is not part of a drop"
+        );
+        require(
+            chromadinCollection.getCollectionCreator(_collectionId) ==
+                msg.sender ||
+                address(chromadinCollection) == msg.sender,
+            "Only creator or collection contract can remove collection"
         );
 
         uint256[] storage collectionIds = drops[

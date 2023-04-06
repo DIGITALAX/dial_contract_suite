@@ -20,15 +20,6 @@ contract ChromadinMarketplace {
 
     mapping(address => string) public buyerToFulfillment;
 
-    modifier onlyCreator(uint256 _collectionId) {
-        require(
-            chromadinCollection.getCollectionCreator(_collectionId) ==
-                msg.sender,
-            "Only the owner of a collection can add it to a drop"
-        );
-        _;
-    }
-
     modifier onlyAdmin {
         require(
             accessControl.isAdmin(msg.sender),
@@ -79,7 +70,7 @@ contract ChromadinMarketplace {
         symbol = _symbol;
         name = _name;
     }
-
+    
     function buyTokens(
         uint256[] memory _tokenIds,
         address _chosenTokenAddress,
@@ -104,9 +95,8 @@ contract ChromadinMarketplace {
             msg.sender,
             address(this)
         );
-        if (allowance < totalPrice) {
-            IERC20(_chosenTokenAddress).approve(msg.sender, totalPrice);
-        }
+
+        require(allowance >= totalPrice, "Insufficient Approval Allowance");
 
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             IERC20(_chosenTokenAddress).transferFrom(

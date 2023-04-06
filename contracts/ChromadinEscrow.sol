@@ -58,7 +58,7 @@ contract ChromadinEscrow is ERC721Holder {
         name = _name;
     }
 
-    modifier onlyAdmin {
+    modifier onlyAdmin() {
         require(
             accessControl.isAdmin(msg.sender),
             "AccessControl: Only admin can perform this action"
@@ -66,10 +66,11 @@ contract ChromadinEscrow is ERC721Holder {
         _;
     }
 
-    modifier onlyDepositer {
+    modifier onlyDepositer() {
         require(
-            msg.sender == address(chromadinCollection),
-            "ChromadinEscrow: Only the Chromadin Collection contract can call this function"
+            msg.sender == address(chromadinCollection) ||
+                msg.sender == address(chromadinNFT),
+            "ChromadinEscrow: Only the Chromadin Collection or NFT contract can call this function"
         );
         _;
     }
@@ -90,12 +91,12 @@ contract ChromadinEscrow is ERC721Holder {
         _;
     }
 
-    function deposit(uint256 _tokenId) external onlyDepositer {
+    function deposit(uint256 _tokenId, bool _bool) external onlyDepositer {
         require(
             chromadinNFT.ownerOf(_tokenId) == address(this),
             "ChromadinEscrow: Token must be owned by escrow contract"
         );
-        _deposited[_tokenId] = true;
+        _deposited[_tokenId] = _bool;
     }
 
     function release(
@@ -107,10 +108,10 @@ contract ChromadinEscrow is ERC721Holder {
             _deposited[_tokenId],
             "ChromadinEscrow: Token must be in escrow"
         );
-        _deposited[_tokenId] = false;
         if (_isBurn) {
             chromadinNFT.burn(_tokenId);
         } else {
+            _deposited[_tokenId] = false;
             chromadinNFT.safeTransferFrom(address(this), _to, _tokenId);
         }
     }

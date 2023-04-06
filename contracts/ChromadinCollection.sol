@@ -7,7 +7,6 @@ import "./AccessControl.sol";
 import "./ChromadinPayment.sol";
 import "./ChromadinDrop.sol";
 import "./ChromadinEscrow.sol";
-import "hardhat/console.sol";
 
 contract ChromadinCollection {
     ChromadinNFT public chromadinNFT;
@@ -15,7 +14,7 @@ contract ChromadinCollection {
     ChromadinPayment public chromadinPayment;
     ChromadinDrop public chromadinDrop;
     ChromadinEscrow public chromadinEscrow;
-    uint256 public collectionId;
+    uint256 public collectionSupply;
     string public symbol;
     string public name;
 
@@ -130,7 +129,7 @@ contract ChromadinCollection {
         chromadinNFT = ChromadinNFT(_chromadinNFTAddress);
         accessControl = AccessControl(_accessControlAddress);
         chromadinPayment = ChromadinPayment(_chromadinPaymentAddress);
-        collectionId = 0;
+        collectionSupply = 0;
         symbol = _symbol;
         name = _name;
     }
@@ -155,7 +154,7 @@ contract ChromadinCollection {
             );
         }
 
-        collectionId++;
+        collectionSupply++;
 
         uint256[] memory tokenIds = new uint256[](_amount);
 
@@ -164,7 +163,7 @@ contract ChromadinCollection {
         }
 
         Collection memory newCollection = Collection({
-            collectionId: collectionId,
+            collectionId: collectionSupply,
             acceptedTokens: _acceptedTokens,
             prices: _tokenPrices,
             tokenIds: tokenIds,
@@ -175,19 +174,19 @@ contract ChromadinCollection {
             timestamp: block.timestamp
         });
 
-        collections[collectionId] = newCollection;
+        collections[collectionSupply] = newCollection;
 
         chromadinNFT.mintBatch(
             _uri,
             _amount,
-            collectionId,
+            collectionSupply,
             msg.sender,
             _acceptedTokens,
             _tokenPrices
         );
 
         emit CollectionMinted(
-            collectionId,
+            collectionSupply,
             _collectionName,
             _uri,
             _amount,

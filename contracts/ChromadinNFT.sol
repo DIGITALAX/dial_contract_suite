@@ -26,7 +26,6 @@ contract ChromadinNFT is ERC721Enumerable {
 
     mapping(uint256 => Token) public tokens;
 
-    event TokenMinted(address indexed to, uint256 tokenId, string uri);
     event BatchTokenMinted(address indexed to, uint256[] tokenIds, string uri);
     event AccessControlUpdated(
         address indexed oldChromadinCollection,
@@ -91,35 +90,6 @@ contract ChromadinNFT is ERC721Enumerable {
         accessControl = AccessControl(_accessControlAddress);
     }
 
-    function mint(
-        string memory _uri,
-        uint256 _collectionId,
-        address _creator,
-        address[] memory _acceptedTokens,
-        uint256[] memory _prices
-    ) public onlyCollectionContract {
-        Token memory newToken = Token({
-            tokenId: super.totalSupply() + 1,
-            collectionId: _collectionId,
-            acceptedTokens: _acceptedTokens,
-            prices: _prices,
-            creator: _creator,
-            uri: _uri,
-            isBurned: false,
-            timestamp: block.timestamp
-        });
-
-        tokens[super.totalSupply() + 1] = newToken;
-
-        _safeMint(address(chromadinEscrow), super.totalSupply() + 1);
-
-        emit TokenMinted(
-            address(chromadinEscrow),
-            super.totalSupply() + 1,
-            _uri
-        );
-    }
-
     function mintBatch(
         string memory _uri,
         uint256 _amount,
@@ -143,8 +113,8 @@ contract ChromadinNFT is ERC721Enumerable {
 
             tokens[super.totalSupply() + 1] = newToken;
             tokenIds[i] = super.totalSupply() + 1;
-
             _safeMint(address(chromadinEscrow), super.totalSupply() + 1);
+            chromadinEscrow.deposit(super.totalSupply(), true);
         }
 
         emit BatchTokenMinted(address(chromadinEscrow), tokenIds, _uri);
@@ -159,7 +129,7 @@ contract ChromadinNFT is ERC721Enumerable {
         }
 
         for (uint256 i = 0; i < _tokenIds.length; i++) {
-            _burn(_tokenIds[i]);
+            burn(_tokenIds[i]);
         }
     }
 
@@ -168,8 +138,10 @@ contract ChromadinNFT is ERC721Enumerable {
             msg.sender == ownerOf(_tokenId),
             "ERC721Metadata: Only token owner can burn token"
         );
+        chromadinEscrow.deposit(super.totalSupply(), false);
         _burn(_tokenId);
         tokens[_tokenId].isBurned = true;
+        emit TokenBurned(_tokenId);
     }
 
     function setChromadinCollection(
