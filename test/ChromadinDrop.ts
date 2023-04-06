@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 import { BigNumber } from "ethers";
 
-describe("ChromadinNFT + ChromadinCollection", function () {
+describe("ChromadinDrop", function () {
   let accessControl: any,
     chromadinEscrow: any,
     chromadinCollection: any,

@@ -1,7 +1,7 @@
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+import { expect } from "chai";
+import { ethers } from "hardhat";
 
-describe("ChromadinNFT + ChromadinCollection", function () {
+describe("ChromadinPayment", function () {
   let accessControl: any,
     chromadinPayment: any,
     admin: any,
@@ -44,15 +44,17 @@ describe("ChromadinNFT + ChromadinCollection", function () {
     });
 
     it("fails verification for non-admin", async () => {
-      await expect(
-        chromadinPayment
-          .connect(nonAdmin)
-          .setVerifiedPaymentTokens([
-            token.address,
-            "0x0000000000000000000000000000000000001010",
-            "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
-          ])
-      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await (
+        expect(
+          chromadinPayment
+            .connect(nonAdmin)
+            .setVerifiedPaymentTokens([
+              token.address,
+              "0x0000000000000000000000000000000000001010",
+              "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+            ])
+        ).to.be as any
+      ).revertedWith("AccessControl: Only admin can perform this action");
     });
 
     it("updates verified tokens", async () => {
@@ -63,16 +65,21 @@ describe("ChromadinNFT + ChromadinCollection", function () {
     });
 
     it("updates access control", async () => {
-      expect(await chromadinPayment.updateAccessControl(token.address))
-        .to.emit("AccessControlUpdated")
+      (
+        expect(await chromadinPayment.updateAccessControl(token.address))
+          .to as any
+      )
+        .emit("AccessControlUpdated")
         .withArgs(accessControl, token.address, admin.address);
       expect(await chromadinPayment.accessControl()).to.equal(token.address);
     });
 
     it("fails access control update for non-admin", async () => {
-      await expect(
-        chromadinPayment.connect(nonAdmin).updateAccessControl(token.address)
-      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await (
+        expect(
+          chromadinPayment.connect(nonAdmin).updateAccessControl(token.address)
+        ).to.be as any
+      ).revertedWith("AccessControl: Only admin can perform this action");
     });
   });
 });
