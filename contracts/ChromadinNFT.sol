@@ -211,10 +211,6 @@ contract ChromadinNFT is ERC721Enumerable {
         return tokens[_tokenId].creator;
     }
 
-    function getTokenURI(uint256 _tokenId) public view returns (string memory) {
-        return tokens[_tokenId].uri;
-    }
-
     function getTokenAcceptedTokens(
         uint256 _tokenId
     ) public view returns (address[] memory) {

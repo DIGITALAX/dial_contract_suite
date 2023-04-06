@@ -97,7 +97,8 @@ describe("ChromadinNFT", function () {
       collection_name: string,
       amount: number,
       acceptedTokens: string[],
-      tokenPrices: string[];
+      tokenPrices: string[],
+      blockNumber: number;
     this.beforeEach("mint the collection", async () => {
       uri = "ipfs://newtoken";
       collection_name = "collection one";
@@ -115,6 +116,8 @@ describe("ChromadinNFT", function () {
         acceptedTokens,
         tokenPrices
       );
+
+      blockNumber = await ethers.provider.getBlockNumber();
     });
 
     it("emits collection minted", async () => {
@@ -164,20 +167,59 @@ describe("ChromadinNFT", function () {
       ]);
     });
 
-    // escrow owns the tokens
-    // expect(token.tokenId).to.equal(1);
-    // expect(token.collectionId).to.equal(collectionId);
-    // expect(token.creator).to.equal(creator);
-    // expect(token.irlItems).to.deep.equal(irlItems);
-    // expect(token.acceptedTokens).to.deep.equal(acceptedTokens);
-    // expect(token.prices).to.deep.equal(prices);
-    // expect(token.isBurned).to.equal(false);
-    // expect(token.timestamp).to.equal(receipt.blockTimestamp);
+    it("all tokens are owned by escrow", async () => {
+      for (let i = 1; i < amount; i++) {
+        expect(await chromadinNFT.ownerOf(i)).to.equal(chromadinEscrow.address);
+      }
+    });
+
+    it("creator to be minter for collection + nfts", async () => {
+      for (let i = 1; i < amount; i++) {
+        expect(await chromadinNFT.getTokenCreator(i)).to.equal(admin.address);
+      }
+    });
+
+    it("accepted tokens for all", async () => {
+      for (let i = 1; i < amount; i++) {
+        expect(await chromadinNFT.getTokenAcceptedTokens(i)).to.deep.equal([
+          "0x0000000000000000000000000000000000001010",
+          "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+        ]);
+      }
+    });
+
+    it("accepted prices for all", async () => {
+      for (let i = 1; i < amount; i++) {
+        expect(await chromadinNFT.getTokenPrices(i)).to.eql([
+          BigNumber.from("1200000000000000000"),
+          BigNumber.from("200000000000000000"),
+        ]);
+      }
+    });
+
+    it("is burn is false for all", async () => {
+      for (let i = 1; i < amount; i++) {
+        expect(await chromadinNFT.getTokenIsBurned(i)).to.equal(false);
+      }
+    });
+
+    it("correct timestamp for all", async () => {
+      const block = await ethers.provider.getBlock(blockNumber);
+      for (let i = 1; i < amount; i++) {
+        expect(await chromadinNFT.getTokenTimestamp(i)).to.equal(
+          block.timestamp
+        );
+      }
+    });
   });
+
+  xit("it should fail to mint if not collection contract", async () => {});
 
   xit("it should burn a token", async () => {});
 
   xit("it should burn a batch of tokens", async () => {});
+
+  xit("it should fail to burn if not creator or admin", async () => {});
 
   xit("it should update token URI", async () => {});
 
@@ -186,4 +228,8 @@ describe("ChromadinNFT", function () {
   xit("it should read getters", async () => {});
 
   xit("it should update setters", async () => {});
+
+  xit("it should fail setters if not creator", async () => {});
+
+  xit("it should fail contract update if not admin", async () => {});
 });
