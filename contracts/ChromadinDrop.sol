@@ -54,15 +54,15 @@ contract ChromadinDrop {
         require(
             chromadinCollection.getCollectionCreator(_collectionId) ==
                 msg.sender,
-            "Only the owner of a collection can add it to a drop"
+            "ChromadinDrop: Only the owner of a collection can add it to a drop"
         );
         _;
     }
 
-    modifier onlyAdmin() {
+    modifier onlyAdmin {
         require(
             accessControl.isAdmin(msg.sender),
-            "Only admin can perform this action"
+            "AccessControl: Only admin can perform this action"
         );
         _;
     }
@@ -88,7 +88,7 @@ contract ChromadinDrop {
             require(
                 chromadinCollection.getCollectionCreator(_collectionIds[i]) ==
                     msg.sender,
-                "Only the owner of a collection can add it to a drop"
+                "ChromadinDrop: Only the owner of a collection can add it to a drop"
             );
         }
 
@@ -115,7 +115,7 @@ contract ChromadinDrop {
         uint256 _dropId,
         uint256 _collectionId
     ) external onlyCreator(_collectionId) {
-        require(drops[_dropId].dropId != 0, "Drop does not exist");
+        require(drops[_dropId].dropId != 0, "ChromadinDrop: Drop does not exist");
 
         drops[_dropId].collectionIds.push(_collectionId);
 
@@ -125,20 +125,20 @@ contract ChromadinDrop {
     function removeCollectionFromDrop(uint256 _collectionId) external {
         require(
             drops[collectionIdToDrop[_collectionId]].dropId != 0,
-            "Collection is not part of a drop"
+            "ChromadinDrop: Collection is not part of a drop"
         );
         require(
             chromadinCollection.getCollectionCreator(_collectionId) ==
                 msg.sender ||
                 address(chromadinCollection) == msg.sender,
-            "Only creator or collection contract can remove collection"
+            "ChromadinDrop: Only creator or collection contract can remove collection"
         );
 
         uint256[] storage collectionIds = drops[
             collectionIdToDrop[_collectionId]
         ].collectionIds;
         uint256 collectionIndex = findIndex(collectionIds, _collectionId);
-        require(collectionIndex < collectionIds.length, "Collection not found");
+        require(collectionIndex < collectionIds.length, "ChromadinDrop: Collection not found");
 
         collectionIds[collectionIndex] = collectionIds[
             collectionIds.length - 1

@@ -84,7 +84,8 @@ contract ChromadinEscrow is ERC721Holder {
         );
         if (_isBurn) {
             require(
-                chromadinNFT.getTokenCreator(_tokenId) == msg.sender,
+                chromadinNFT.getTokenCreator(_tokenId) == msg.sender ||
+                    address(chromadinCollection) == msg.sender,
                 "ChromadinEscrow: Only the creator of the token can transfer it to the burn address"
             );
         }
@@ -94,7 +95,7 @@ contract ChromadinEscrow is ERC721Holder {
     function deposit(uint256 _tokenId, bool _bool) external onlyDepositer {
         require(
             chromadinNFT.ownerOf(_tokenId) == address(this),
-            "ChromadinEscrow: Token must be owned by escrow contract"
+            "ChromadinEscrow: Token must be owned by escrow contract or Owner"
         );
         _deposited[_tokenId] = _bool;
     }
@@ -108,10 +109,10 @@ contract ChromadinEscrow is ERC721Holder {
             _deposited[_tokenId],
             "ChromadinEscrow: Token must be in escrow"
         );
+        _deposited[_tokenId] = false;
         if (_isBurn) {
             chromadinNFT.burn(_tokenId);
         } else {
-            _deposited[_tokenId] = false;
             chromadinNFT.safeTransferFrom(address(this), _to, _tokenId);
         }
     }

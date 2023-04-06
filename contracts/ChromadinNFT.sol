@@ -63,7 +63,7 @@ contract ChromadinNFT is ERC721Enumerable {
     modifier onlyAdmin() {
         require(
             accessControl.isAdmin(msg.sender),
-            "Access Control: Only admin can perform this action"
+            "AccessControl: Only admin can perform this action"
         );
         _;
     }
@@ -80,6 +80,14 @@ contract ChromadinNFT is ERC721Enumerable {
         require(
             msg.sender == address(chromadinCollection),
             "ChromadinNFT: Only collection contract can mint tokens"
+        );
+        _;
+    }
+
+    modifier tokensInEscrow(uint256 _tokenId) {
+        require(
+            ownerOf(_tokenId) == address(chromadinEscrow),
+            "ChromadinNFT: Tokens can only be edited when whole collection is in Escrow"
         );
         _;
     }
@@ -138,7 +146,6 @@ contract ChromadinNFT is ERC721Enumerable {
             msg.sender == ownerOf(_tokenId),
             "ERC721Metadata: Only token owner can burn token"
         );
-        chromadinEscrow.deposit(super.totalSupply(), false);
         _burn(_tokenId);
         tokens[_tokenId].isBurned = true;
         emit TokenBurned(_tokenId);
@@ -216,7 +223,7 @@ contract ChromadinNFT is ERC721Enumerable {
     function setTokenAcceptedTokens(
         uint256 _tokenId,
         address[] memory _newAcceptedTokens
-    ) public onlyCollectionContract {
+    ) public onlyCollectionContract tokensInEscrow(_tokenId) {
         address[] memory oldTokens = tokens[_tokenId].acceptedTokens;
         tokens[_tokenId].acceptedTokens = _newAcceptedTokens;
         emit TokenAcceptedTokensUpdated(
@@ -230,7 +237,7 @@ contract ChromadinNFT is ERC721Enumerable {
     function setTokenPrices(
         uint256 _tokenId,
         uint256[] memory _newPrices
-    ) public onlyCollectionContract {
+    ) public onlyCollectionContract tokensInEscrow(_tokenId) {
         uint256[] memory oldTokens = tokens[_tokenId].prices;
         tokens[_tokenId].prices = _newPrices;
         emit TokenPricesUpdated(_tokenId, oldTokens, _newPrices, msg.sender);
@@ -239,7 +246,7 @@ contract ChromadinNFT is ERC721Enumerable {
     function setTokenURI(
         uint256 _tokenId,
         string memory _newURI
-    ) public onlyCollectionContract {
+    ) public onlyCollectionContract tokensInEscrow(_tokenId) {
         string memory oldURI = tokens[_tokenId].uri;
         tokens[_tokenId].uri = _newURI;
         emit TokenURIUpdated(_tokenId, oldURI, _newURI, msg.sender);

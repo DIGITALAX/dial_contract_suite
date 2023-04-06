@@ -328,7 +328,7 @@ describe("ChromadinNFT", function () {
       );
 
       // add collection to a drop
-      await chromadinDrop.createDrop([1], "drop_uri")
+      await chromadinDrop.createDrop([1, 2], "drop_uri");
 
       // approve allowance
       await token
@@ -370,26 +370,355 @@ describe("ChromadinNFT", function () {
       });
 
       it("it should be set as burn from collection level", async () => {
-        expect(await chromadinCollection.getCollectionCreator(2)).to.equal(
-          true 
+        expect(await chromadinCollection.getCollectionIsBurned(2)).to.equal(
+          true
         );
       });
     });
 
-    xit("it should fail to burn if not creator or admin", async () => {});
-
-    xit("it should burn a collection from the escrow contract", async () => {});
+    it("it should fail to burn if not creator or contract", async () => {
+      await expect(
+        chromadinCollection.connect(nonAdmin).burnCollection(2)
+      ).to.be.revertedWith(
+        "ChromadinCollection: Only the creator can edit this collection"
+      );
+    });
   });
 
-  xit("it should update token URI", async () => {});
+  describe("update contract dependencies", () => {
+    beforeEach("redeploy new contracts", async () => {
+      const AccessControl = await ethers.getContractFactory("AccessControl");
+      const ChromadinEscrow = await ethers.getContractFactory(
+        "ChromadinEscrow"
+      );
+      const ChromadinCollection = await ethers.getContractFactory(
+        "ChromadinCollection"
+      );
 
-  xit("it should update access controls, collection and escrow contracts", async () => {});
+      const accessControl = await AccessControl.deploy(
+        "Chromadin Access Control",
+        "CHROA"
+      );
+      const ChromadinNFT = await ethers.getContractFactory("ChromadinNFT");
+      const ChromadinPayment = await ethers.getContractFactory(
+        "ChromadinPayment"
+      );
+      const ChromadinMarketplace = await ethers.getContractFactory(
+        "ChromadinMarketplace"
+      );
+      const ChromadinDrop = await ethers.getContractFactory("ChromadinDrop");
+      chromadinPayment = await ChromadinPayment.deploy(accessControl.address);
+      chromadinNFT = await ChromadinNFT.deploy(accessControl.address);
+      chromadinCollection = await ChromadinCollection.deploy(
+        chromadinNFT.address,
+        accessControl.address,
+        chromadinPayment.address,
+        "Chromadin Collection",
+        "CHROC"
+      );
+      chromadinMarketplace = await ChromadinMarketplace.deploy(
+        chromadinCollection.address,
+        chromadinPayment.address,
+        accessControl.address,
+        chromadinNFT.address,
+        "Chromadin Marketplace",
+        "CHROM"
+      );
+      chromadinDrop = await ChromadinDrop.deploy(
+        chromadinCollection.address,
+        accessControl.address,
+        "Chromadin Drop",
+        "CHROD"
+      );
+      chromadinEscrow = await ChromadinEscrow.deploy(
+        chromadinCollection.address,
+        chromadinMarketplace.address,
+        accessControl.address,
+        chromadinNFT.address,
+        "Chromadin Escrow",
+        "CHROE"
+      );
+    });
 
-  xit("it should read getters", async () => {});
+    it("updates access controls", async () => {
+      const old_access = await chromadinNFT.accessControl();
+      expect(await chromadinNFT.updateAccessControl(accessControl.address))
+        .to.emit("AccessControlUpdated")
+        .withArgs(old_access, accessControl.address, admin.address);
+      expect(await chromadinNFT.accessControl()).to.equal(
+        accessControl.address
+      );
+      expect(
+        await chromadinCollection.updateAccessControl(accessControl.address)
+      )
+        .to.emit("AccessControlUpdated")
+        .withArgs(old_access, accessControl.address, admin.address);
+      expect(await chromadinCollection.accessControl()).to.equal(
+        accessControl.address
+      );
+    });
 
-  xit("it should update setters", async () => {});
+    it("updates escrow", async () => {
+      expect(await chromadinNFT.setChromadinEscrow(chromadinEscrow.address))
+        .to.emit("ChromadinEscrowUpdated")
+        .withArgs(chromadinEscrow.address, admin.address);
+      expect(await chromadinNFT.chromadinEscrow()).to.equal(
+        chromadinEscrow.address
+      );
+      expect(
+        await chromadinCollection.setChromadinEscrow(chromadinEscrow.address)
+      )
+        .to.emit("ChromadinEscrowUpdated")
+        .withArgs(chromadinEscrow.address, admin.address);
+      expect(await chromadinCollection.chromadinEscrow()).to.equal(
+        chromadinEscrow.address
+      );
+    });
 
-  xit("it should fail setters if not creator", async () => {});
+    it("updates collection", async () => {
+      expect(
+        await chromadinNFT.setChromadinCollection(chromadinCollection.address)
+      )
+        .to.emit("ChromadinCollectionUpdated")
+        .withArgs(chromadinCollection.address, admin.address);
+      expect(await chromadinNFT.chromadinCollection()).to.equal(
+        chromadinCollection.address
+      );
+    });
 
-  xit("it should fail contract update if not admin", async () => {});
+    it("updates drop", async () => {
+      expect(await chromadinCollection.setChromadinDrop(chromadinDrop.address))
+        .to.emit("ChromadinDropUpdated")
+        .withArgs(chromadinDrop.address, admin.address);
+      expect(await chromadinCollection.chromadinDrop()).to.equal(
+        chromadinDrop.address
+      );
+    });
+
+    it("updates payment", async () => {
+      expect(
+        await chromadinCollection.updateChromadinPayment(
+          chromadinPayment.address
+        )
+      )
+        .to.emit("ChromadinPaymentUpdated")
+        .withArgs(chromadinPayment.address, admin.address);
+      expect(await chromadinCollection.chromadinPayment()).to.equal(
+        chromadinPayment.address
+      );
+    });
+
+    it("updates NFT", async () => {
+      expect(await chromadinCollection.updateChromadinNFT(chromadinNFT.address))
+        .to.emit("ChromadinNFTUpdated")
+        .withArgs(chromadinNFT.address, admin.address);
+      expect(await chromadinCollection.chromadinNFT()).to.equal(
+        chromadinNFT.address
+      );
+    });
+
+    it("should fail all updates if not admin", async () => {
+      await expect(
+        chromadinNFT
+          .connect(nonAdmin)
+          .setChromadinCollection(chromadinCollection.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinNFT
+          .connect(nonAdmin)
+          .setChromadinEscrow(chromadinEscrow.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinNFT
+          .connect(nonAdmin)
+          .updateAccessControl(accessControl.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinCollection
+          .connect(nonAdmin)
+          .updateAccessControl(accessControl.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinCollection
+          .connect(nonAdmin)
+          .updateChromadinNFT(chromadinNFT.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinCollection
+          .connect(nonAdmin)
+          .setChromadinEscrow(chromadinEscrow.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinCollection
+          .connect(nonAdmin)
+          .setChromadinDrop(chromadinDrop.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinCollection
+          .connect(nonAdmin)
+          .updateChromadinPayment(chromadinPayment.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+    });
+  });
+
+  describe("it should update setters and read getters", () => {
+    beforeEach("create collection with write address", async () => {
+      // give access control to writer
+      await accessControl.addWriter(writer.address);
+      await chromadinCollection
+        .connect(writer)
+        .mintCollection(
+          "third_uri",
+          6,
+          "collection_three",
+          acceptedTokens,
+          tokenPrices
+        );
+    });
+
+    it("set URI", async () => {
+      const old = await chromadinCollection.getCollectionURI(2);
+      expect(
+        await chromadinCollection
+          .connect(writer)
+          .setCollectionURI("new_token", 2)
+      )
+        .to.emit("CollectionURIUpdated")
+        .withArgs(2, old, "new_token", writer.address);
+      expect(await chromadinCollection.getCollectionURI(2)).to.equal(
+        "new_token"
+      );
+      expect(await chromadinNFT.tokenURI(13)).to.equal("new_token");
+    });
+
+    it("set tokens accepted", async () => {
+      const old = await chromadinCollection.getCollectionAcceptedTokens(2);
+      expect(
+        await chromadinCollection
+          .connect(writer)
+          .setCollectionAcceptedTokens(2, [token.address])
+      )
+        .to.emit("CollectionAcceptedTokensUpdated")
+        .withArgs(2, old, [token.address], writer.address);
+      expect(
+        await chromadinCollection.getCollectionAcceptedTokens(2)
+      ).to.deep.equal([token.address]);
+      expect(await chromadinNFT.getTokenAcceptedTokens(13)).to.deep.equal([
+        token.address,
+      ]);
+    });
+
+    it("set prices", async () => {
+      const old = await chromadinCollection.getCollectionPrices(2);
+      expect(
+        await chromadinCollection
+          .connect(writer)
+          .setCollectionPrices(2, ["2000000"])
+      )
+        .to.emit("CollectionPricesUpdated")
+        .withArgs(2, old, ["2000000"], writer.address);
+      expect(await chromadinCollection.getCollectionPrices(2)).to.deep.equal([
+        BigNumber.from("2000000"),
+      ]);
+      expect(await chromadinNFT.getTokenPrices(13)).to.deep.eql([
+        BigNumber.from("2000000"),
+      ]);
+    });
+
+    it("set collection name", async () => {
+      const old = await chromadinCollection.getCollectionName(2);
+      expect(
+        await chromadinCollection
+          .connect(writer)
+          .setCollectionName("new_name_2", 2)
+      )
+        .to.emit("CollectionNameUpdated")
+        .withArgs(2, old, "new_name_2", writer.address);
+      expect(await chromadinCollection.getCollectionName(2)).to.equal(
+        "new_name_2"
+      );
+    });
+
+    it("should fail all setters if not creator / collection contract", async () => {
+      await expect(
+        chromadinCollection.setCollectionURI("new_token", 2)
+      ).to.be.revertedWith(
+        "ChromadinCollection: Only the creator can edit this collection"
+      );
+      await expect(
+        chromadinCollection.setCollectionAcceptedTokens(2, [token.address])
+      ).to.be.revertedWith(
+        "ChromadinCollection: Only the creator can edit this collection"
+      );
+      await expect(
+        chromadinCollection.setCollectionName("new_name_2", 2)
+      ).to.be.revertedWith(
+        "ChromadinCollection: Only the creator can edit this collection"
+      );
+      await expect(
+        chromadinCollection.setCollectionPrices(2, ["2000000"])
+      ).to.be.revertedWith(
+        "ChromadinCollection: Only the creator can edit this collection"
+      );
+      await expect(
+        chromadinNFT.setTokenURI(13, "new_token")
+      ).to.be.revertedWith(
+        "ChromadinNFT: Only collection contract can mint tokens"
+      );
+      await expect(
+        chromadinNFT.setTokenAcceptedTokens(13, [token.address])
+      ).to.be.revertedWith(
+        "ChromadinNFT: Only collection contract can mint tokens"
+      );
+      await expect(
+        chromadinNFT.setTokenPrices(13, ["2000000"])
+      ).to.be.revertedWith(
+        "ChromadinNFT: Only collection contract can mint tokens"
+      );
+    });
+
+    it("should fail setters if collection not all in escrow", async () => {
+      // buy from another collection
+      await chromadinCollection.mintCollection(
+        "second_uri",
+        2,
+        collection_name,
+        [token.address],
+        ["100000"]
+      );
+
+      // add collection to a drop
+      await chromadinDrop.createDrop([3], "drop_uri");
+
+      // approve allowance
+      await token
+        .connect(nonAdmin)
+        .approve(chromadinMarketplace.address, BigNumber.from("100000000"));
+
+      await chromadinMarketplace
+        .connect(nonAdmin)
+        .buyTokens([18], token.address, "fullfillment content");
+
+      await expect(
+        chromadinCollection.setCollectionURI("new_token", 3)
+      ).to.be.revertedWith(
+        "ChromadinCollection: The entire collection must be owned by Escrow to update"
+      );
+      await expect(
+        chromadinCollection.setCollectionAcceptedTokens(3, [token.address])
+      ).to.be.revertedWith(
+        "ChromadinCollection: The entire collection must be owned by Escrow to update"
+      );
+      await expect(
+        chromadinCollection.setCollectionName("new_name_2", 3)
+      ).to.be.revertedWith(
+        "ChromadinCollection: The entire collection must be owned by Escrow to update"
+      );
+      await expect(
+        chromadinCollection.setCollectionPrices(3, ["2000000"])
+      ).to.be.revertedWith(
+        "ChromadinCollection: The entire collection must be owned by Escrow to update"
+      );
+    });
+  });
 });

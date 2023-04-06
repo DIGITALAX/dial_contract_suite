@@ -106,15 +106,15 @@ contract ChromadinCollection {
     modifier onlyCreator(uint256 _collectionId) {
         require(
             msg.sender == collections[_collectionId].creator,
-            "Only the creator can burn this collection"
+            "ChromadinCollection: Only the creator can edit this collection"
         );
         _;
     }
 
-    modifier onlyAdmin {
+    modifier onlyAdmin() {
         require(
             accessControl.isAdmin(msg.sender),
-            "Only admin can perform this action"
+            "AccessControl: Only admin can perform this action"
         );
         _;
     }
@@ -141,16 +141,19 @@ contract ChromadinCollection {
         address[] memory _acceptedTokens,
         uint256[] memory _tokenPrices
     ) external {
-        require(_tokenPrices.length == _acceptedTokens.length, "Invalid input");
+        require(
+            _tokenPrices.length == _acceptedTokens.length,
+            "ChromadinCollection: Invalid input"
+        );
         require(
             accessControl.isAdmin(msg.sender) ||
                 accessControl.isWriter(msg.sender),
-            "Only admin or writer can perform this action"
+            "ChromadinCollection: Only admin or writer can perform this action"
         );
         for (uint256 i = 0; i < _acceptedTokens.length; i++) {
             require(
                 chromadinPayment.isVerifiedPaymentToken(_acceptedTokens[i]),
-                "Payment Token is Not Verified"
+                "ChromadinCollection: Payment Token is Not Verified"
             );
         }
 
@@ -199,7 +202,7 @@ contract ChromadinCollection {
     ) external onlyCreator(_collectionId) {
         require(
             !collections[_collectionId].isBurned,
-            "This collection has already been burned"
+            "ChromadinCollection: This collection has already been burned"
         );
         chromadinDrop.removeCollectionFromDrop(_collectionId);
         for (
@@ -335,6 +338,13 @@ contract ChromadinCollection {
         string memory _collectionName,
         uint256 _collectionId
     ) external onlyCreator(_collectionId) {
+        uint256[] memory tokenIds = collections[_collectionId].tokenIds;
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            require(
+                chromadinNFT.ownerOf(tokenIds[i]) == address(chromadinEscrow),
+                "ChromadinCollection: The entire collection must be owned by Escrow to update"
+            );
+        }
         string memory oldName = collections[_collectionId].name;
         collections[_collectionId].name = _collectionName;
         emit CollectionNameUpdated(
@@ -349,6 +359,14 @@ contract ChromadinCollection {
         string memory _newURI,
         uint256 _collectionId
     ) external onlyCreator(_collectionId) {
+        uint256[] memory tokenIds = collections[_collectionId].tokenIds;
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            require(
+                chromadinNFT.ownerOf(tokenIds[i]) == address(chromadinEscrow),
+                "ChromadinCollection: The entire collection must be owned by Escrow to update"
+            );
+            chromadinNFT.setTokenURI(tokenIds[i], _newURI);
+        }
         string memory oldURI = collections[_collectionId].uri;
         collections[_collectionId].uri = _newURI;
         emit CollectionURIUpdated(_collectionId, oldURI, _newURI, msg.sender);
@@ -360,6 +378,10 @@ contract ChromadinCollection {
     ) external onlyCreator(_collectionId) {
         uint256[] memory tokenIds = collections[_collectionId].tokenIds;
         for (uint256 i = 0; i < tokenIds.length; i++) {
+            require(
+                chromadinNFT.ownerOf(tokenIds[i]) == address(chromadinEscrow),
+                "ChromadinCollection: The entire collection must be owned by Escrow to update"
+            );
             chromadinNFT.setTokenPrices(tokenIds[i], _newCollectionPrices);
         }
         uint256[] memory oldPrices = collections[_collectionId].prices;
@@ -378,6 +400,10 @@ contract ChromadinCollection {
     ) external onlyCreator(_collectionId) {
         uint256[] memory tokenIds = collections[_collectionId].tokenIds;
         for (uint256 i = 0; i < tokenIds.length; i++) {
+            require(
+                chromadinNFT.ownerOf(tokenIds[i]) == address(chromadinEscrow),
+                "ChromadinCollection: The entire collection must be owned by Escrow to update"
+            );
             chromadinNFT.setTokenAcceptedTokens(
                 tokenIds[i],
                 _newAcceptedTokens

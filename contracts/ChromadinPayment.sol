@@ -14,7 +14,7 @@ contract ChromadinPayment {
     modifier onlyAdmin {
         require(
             accessControl.isAdmin(msg.sender),
-            "Access Control: Only admin can perform this action"
+            "AccessControl: Only admin can perform this action"
         );
         _;
     }
