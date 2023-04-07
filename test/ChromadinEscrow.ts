@@ -45,7 +45,6 @@ describe("ChromadinEscrow", function () {
     );
     chromadinMarketplace = await ChromadinMarketplace.deploy(
       chromadinCollection.address,
-      chromadinPayment.address,
       accessControl.address,
       chromadinNFT.address,
       "Chromadin Marketplace",

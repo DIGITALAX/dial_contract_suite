@@ -4,12 +4,11 @@ pragma solidity ^0.8.9;
 
 import "./ChromadinCollection.sol";
 import "./AccessControl.sol";
-import "hardhat/console.sol";
 
 contract ChromadinDrop {
     AccessControl public accessControl;
     ChromadinCollection public chromadinCollection;
-    uint256 public dropId;
+    uint256 public dropSupply;
     string public symbol;
     string public name;
 
@@ -78,7 +77,7 @@ contract ChromadinDrop {
     ) {
         chromadinCollection = ChromadinCollection(_chromadinCollectionAddress);
         accessControl = AccessControl(_accessControlAddress);
-        dropId = 0;
+        dropSupply = 0;
         symbol = _symbol;
         name = _name;
     }
@@ -88,10 +87,6 @@ contract ChromadinDrop {
         string memory _dropURI
     ) external {
         for (uint256 i = 0; i < _collectionIds.length; i++) {
-            console.log(_collectionIds[i]);
-            console.log(
-                chromadinCollection.getCollectionCreator(_collectionIds[i])
-            );
             require(
                 chromadinCollection.getCollectionCreator(_collectionIds[i]) ==
                     msg.sender &&
@@ -110,10 +105,10 @@ contract ChromadinDrop {
             );
         }
 
-        dropId++;
+        dropSupply++;
 
         Drop memory newDrop = Drop({
-            dropId: dropId,
+            dropId: dropSupply,
             collectionIds: _collectionIds,
             dropURI: _dropURI,
             creator: msg.sender,
@@ -121,12 +116,12 @@ contract ChromadinDrop {
         });
 
         for (uint256 i = 0; i < _collectionIds.length; i++) {
-            collectionIdToDrop[_collectionIds[i]] = dropId;
+            collectionIdToDrop[_collectionIds[i]] = dropSupply;
         }
 
-        drops[dropId] = newDrop;
+        drops[dropSupply] = newDrop;
 
-        emit DropCreated(dropId, _collectionIds, msg.sender);
+        emit DropCreated(dropSupply, _collectionIds, msg.sender);
     }
 
     function addCollectionToDrop(
@@ -144,7 +139,7 @@ contract ChromadinDrop {
         );
 
         drops[_dropId].collectionIds.push(_collectionId);
-        collectionIdToDrop[_collectionId] = dropId;
+        collectionIdToDrop[_collectionId] = dropSupply;
 
         emit CollectionAddedToDrop(_dropId, _collectionId);
     }

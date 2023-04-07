@@ -5,22 +5,22 @@ pragma solidity ^0.8.9;
 import "./AccessControl.sol";
 import "./ChromadinCollection.sol";
 import "./ChromadinEscrow.sol";
-import "./ChromadinPayment.sol";
 import "./ChromadinNFT.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract ChromadinMarketplace {
     ChromadinCollection public chromadinCollection;
     ChromadinEscrow public chromadinEscrow;
-    ChromadinPayment public chromadinPayment;
     ChromadinNFT public chromadinNFT;
     AccessControl public accessControl;
     string public symbol;
     string public name;
 
-    mapping(address => string) public buyerToFulfillment;
+    mapping(address => string[]) private buyerToFulfillment;
+    mapping(uint256 => uint256) private tokensSold;
+    mapping(uint256 => uint256[]) private tokenIdsSold;
 
-    modifier onlyAdmin {
+    modifier onlyAdmin() {
         require(
             accessControl.isAdmin(msg.sender),
             "AccessControl: Only admin can perform this action"
@@ -48,29 +48,22 @@ contract ChromadinMarketplace {
         address indexed newChromadinEscrow,
         address updater
     );
-    event ChromadinPaymentUpdated(
-        address indexed oldChromadinPayment,
-        address indexed newChromadinPayment,
-        address updater
-    );
     event TokensBought(uint256[] tokenIds, uint256 totalPrice, address buyer);
 
     constructor(
         address _collectionContract,
-        address _paymentContract,
         address _accessControlContract,
         address _NFTContract,
         string memory _symbol,
         string memory _name
     ) {
         chromadinCollection = ChromadinCollection(_collectionContract);
-        chromadinPayment = ChromadinPayment(_paymentContract);
         accessControl = AccessControl(_accessControlContract);
         chromadinNFT = ChromadinNFT(_NFTContract);
         symbol = _symbol;
         name = _name;
     }
-    
+
     function buyTokens(
         uint256[] memory _tokenIds,
         address _chosenTokenAddress,
@@ -78,6 +71,26 @@ contract ChromadinMarketplace {
     ) external {
         uint256 totalPrice = 0;
         uint256[] memory prices = new uint256[](_tokenIds.length);
+
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            require(
+                chromadinNFT.ownerOf(_tokenIds[i]) == address(chromadinEscrow),
+                "ChromadinMarketplace: Token must be owned by Escrow"
+            );
+            bool isAccepted = false;
+            address[] memory acceptedTokens = chromadinNFT
+                .getTokenAcceptedTokens(_tokenIds[i]);
+            for (uint256 j = 0; j < acceptedTokens.length; j++) {
+                if (acceptedTokens[j] == _chosenTokenAddress) {
+                    isAccepted = true;
+                    break;
+                }
+            }
+            require(
+                isAccepted,
+                "ChromadinMarketplace: Chosen token address is not an accepted token for the collection"
+            );
+        }
 
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             address[] memory acceptedTokens = chromadinNFT
@@ -91,12 +104,23 @@ contract ChromadinMarketplace {
             }
         }
 
+        uint256 buyerBalance = IERC20(_chosenTokenAddress).balanceOf(
+            msg.sender
+        );
+        require(
+            buyerBalance >= totalPrice,
+            "ChromadinMarketplace: Insufficient balance"
+        );
+
         uint256 allowance = IERC20(_chosenTokenAddress).allowance(
             msg.sender,
             address(this)
         );
 
-        require(allowance >= totalPrice, "Insufficient Approval Allowance");
+        require(
+            allowance >= totalPrice,
+            "ChromadinMarketplace: Insufficient Approval Allowance"
+        );
 
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             IERC20(_chosenTokenAddress).transferFrom(
@@ -107,9 +131,33 @@ contract ChromadinMarketplace {
             chromadinEscrow.release(_tokenIds[i], false, msg.sender);
         }
 
-        buyerToFulfillment[msg.sender] = _fulfillmentContent;
+        buyerToFulfillment[msg.sender].push(_fulfillmentContent);
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            tokensSold[chromadinNFT.getTokenCollection(_tokenIds[i])] += 1;
+            tokenIdsSold[chromadinNFT.getTokenCollection(_tokenIds[i])].push(
+                _tokenIds[i]
+            );
+        }
 
         emit TokensBought(_tokenIds, totalPrice, msg.sender);
+    }
+
+    function removeFulfillmentContent(
+        uint index,
+        address _address
+    ) external onlyAdmin {
+        require(
+            index < buyerToFulfillment[_address].length,
+            "ChromadinMarketplace: Index out of range"
+        );
+
+        for (uint i = index; i < buyerToFulfillment[_address].length - 1; i++) {
+            buyerToFulfillment[_address][i] = buyerToFulfillment[_address][
+                i + 1
+            ];
+        }
+
+        buyerToFulfillment[_address].pop();
     }
 
     function updateAccessControl(
@@ -162,15 +210,21 @@ contract ChromadinMarketplace {
         );
     }
 
-    function updateChromadinPayment(
-        address _newChromadinPaymentAddress
-    ) external onlyAdmin {
-        address oldAddress = address(chromadinPayment);
-        chromadinPayment = ChromadinPayment(_newChromadinPaymentAddress);
-        emit ChromadinPaymentUpdated(
-            oldAddress,
-            _newChromadinPaymentAddress,
-            msg.sender
-        );
+    function getBuyerToFulfillment(
+        address _address
+    ) public view returns (string[] memory) {
+        return buyerToFulfillment[_address];
+    }
+
+    function getCollectionSoldCount(
+        uint256 _collectionId
+    ) public view returns (uint256) {
+        return tokensSold[_collectionId];
+    }
+
+    function getTokensSoldCollection(
+        uint256 _collectionId
+    ) public view returns (uint256[] memory) {
+        return tokenIdsSold[_collectionId];
     }
 }
