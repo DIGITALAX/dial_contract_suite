@@ -16,25 +16,24 @@ describe("The Dial Whitelist Test Suite", () => {
 
   describe("mint", () => {
     it("should mint a new token to the specified address", async () => {
-      const tokenId = await theDialWhitelist.tokenId();
+      const tokenId = await theDialWhitelist.totalSupply();
       const uri = "tokenURI";
       expect(tokenId).to.equal(0);
       await theDialWhitelist.connect(admin).mint(user.address, uri);
-      const tokenOwner = await theDialWhitelist.ownerOf(tokenId);
+      const tokenOwner = await theDialWhitelist.ownerOf(tokenId+1);
       expect(tokenOwner).to.equal(user.address);
-      const tokenURI = await theDialWhitelist.tokenURI(tokenId);
+      const tokenURI = await theDialWhitelist.tokenURI(tokenId+1);
       expect(tokenURI).to.equal(uri);
-      const tokenIdAfter = await theDialWhitelist.tokenId();
-      expect(tokenIdAfter).to.equal(1);
+      const tokenIdAfter = await theDialWhitelist.totalSupply();
+      expect(tokenIdAfter).to.equal(tokenId+1);
     });
 
     it("should revert if the caller is not an admin", async () => {
-      const tokenId = await theDialWhitelist.tokenId();
       const uri = "tokenURI";
       await (
         expect(theDialWhitelist.connect(user).mint(user.address, uri)).to
           .be as any
-      ).revertedWith("Only admin can perform this action");
+      ).revertedWith("AccessControl: Only admin can perform this action");
     });
   });
 
@@ -49,7 +48,7 @@ describe("The Dial Whitelist Test Suite", () => {
       await (
         expect(theDialWhitelist.connect(user).removeFromWhitelist(user.address))
           .to.be as any
-      ).revertedWith("Only admin can perform this action");
+      ).revertedWith("AccessControl: Only admin can perform this action");
     });
   });
 
@@ -70,7 +69,7 @@ describe("The Dial Whitelist Test Suite", () => {
     it("should return the correct token ID for the specified address", async () => {
       await theDialWhitelist.connect(admin).mint(user.address, "tokenURI");
       const tokenId = await theDialWhitelist.checkTokenId(user.address);
-      expect(tokenId).to.equal(0);
+      expect(tokenId).to.equal(1);
     });
 
     it("should return 0 if the address has not been whitelisted", async () => {
@@ -89,13 +88,13 @@ describe("The Dial Whitelist Test Suite", () => {
         expect(
           theDialWhitelist
             .connect(user)
-            .transferFrom(user.address, admin.address, 0)
+            .transferFrom(user.address, admin.address, 1)
         ).to.be as any
-      ).revertedWith("This token is non-transferable at the moment.");
+      ).revertedWith("TheDialWhitelist: This token is non-transferable at the moment.");
     });
 
     it("can be transferred after 180 days", async () => {
-      const currentTime = Math.floor(Date.now() / 1000) + 1000;
+      const currentTime = Math.floor(Date.now() / 1000) + 5000;
 
       const duration = 180 * 24 * 60 * 60; // 180 days in seconds
       await ethers.provider.send("evm_setNextBlockTimestamp", [
@@ -103,8 +102,8 @@ describe("The Dial Whitelist Test Suite", () => {
       ]);
       await theDialWhitelist
         .connect(user)
-        .transferFrom(user.address, admin.address, 0);
-      const newOwner = await theDialWhitelist.ownerOf(0);
+        .transferFrom(user.address, admin.address, 1);
+      const newOwner = await theDialWhitelist.ownerOf(1);
       expect(newOwner).to.equal(admin.address);
     });
   });

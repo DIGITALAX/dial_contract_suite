@@ -388,8 +388,8 @@ describe("ChromadinDrop", function () {
     it("collection removed from drop when burned", async () => {
       await chromadinCollection.burnCollection(1);
       expect(await chromadinDrop.getCollectionsInDrop(1)).to.deep.equal([
-        BigNumber.from("2"),
         BigNumber.from("3"),
+        BigNumber.from("2"),
       ]);
     });
   });

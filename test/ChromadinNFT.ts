@@ -405,11 +405,6 @@ describe("ChromadinNFT + ChromadinCollection", function () {
       const ChromadinCollection = await ethers.getContractFactory(
         "ChromadinCollection"
       );
-
-      const accessControl = await AccessControl.deploy(
-        "Chromadin Access Control",
-        "CHROA"
-      );
       const ChromadinNFT = await ethers.getContractFactory("ChromadinNFT");
       const ChromadinPayment = await ethers.getContractFactory(
         "ChromadinPayment"
@@ -418,6 +413,10 @@ describe("ChromadinNFT + ChromadinCollection", function () {
         "ChromadinMarketplace"
       );
       const ChromadinDrop = await ethers.getContractFactory("ChromadinDrop");
+      accessControl = await AccessControl.deploy(
+        "Chromadin Access Control",
+        "CHROA"
+      );
       chromadinPayment = await ChromadinPayment.deploy(accessControl.address);
       chromadinNFT = await ChromadinNFT.deploy(accessControl.address);
       chromadinCollection = await ChromadinCollection.deploy(
@@ -429,7 +428,6 @@ describe("ChromadinNFT + ChromadinCollection", function () {
       );
       chromadinMarketplace = await ChromadinMarketplace.deploy(
         chromadinCollection.address,
-        chromadinPayment.address,
         accessControl.address,
         chromadinNFT.address,
         "Chromadin Marketplace",

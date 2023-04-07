@@ -33,7 +33,7 @@ contract TheDialWhitelist is ERC721("TheDialWhitelist", "DIAL") {
     modifier isTransferable(uint256 _tokenId) {
         require(
             block.timestamp >= tokenToTimestamp[_tokenId] + transferLockTime,
-            "This token is non-transferable at the moment."
+            "TheDialWhitelist: This token is non-transferable at the moment."
         );
         _;
     }
@@ -46,7 +46,7 @@ contract TheDialWhitelist is ERC721("TheDialWhitelist", "DIAL") {
     function removeFromWhitelist(address _address) external {
         require(
             accessControl.isAdmin(msg.sender),
-            "Only admin can perform this action"
+            "AccessControl: Only admin can perform this action"
         );
         whitelist[_address] = false;
     }
@@ -54,7 +54,7 @@ contract TheDialWhitelist is ERC721("TheDialWhitelist", "DIAL") {
     function mint(address _to, string memory _uri) external {
         require(
             accessControl.isAdmin(msg.sender),
-            "Only admin can perform this action"
+            "AccessControl: Only admin can perform this action"
         );
         totalSupply++;
         whitelist[_to] = true;
