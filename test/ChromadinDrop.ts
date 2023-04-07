@@ -385,5 +385,13 @@ describe("ChromadinDrop", function () {
         "ChromadinDrop: Only the owner of a drop can edit a drop"
       );
     });
+
+    it("collection removed from drop when burned", async () => {
+      await chromadinCollection.burnCollection(1);
+      expect(await chromadinDrop.getCollectionsInDrop(1)).to.deep.equal([
+        BigNumber.from("2"),
+        BigNumber.from("3"),
+      ]);
+    });
   });
 });

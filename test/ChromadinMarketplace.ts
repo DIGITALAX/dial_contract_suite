@@ -117,5 +117,11 @@ describe("ChromadinMarketplace", function () {
     xit("reject purchase if token not approved / accepted for that nft + collection", async () => {});
   });
 
+  xdescribe("sold", () => {
+    xit("map how many have been sold in collection");
+    xit("map how many collected by to collection");
+    xit("map how many collected by to drop");
+  });
+
   xit("fulfillment content mapped", async () => {});
 });

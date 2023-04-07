@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 
 import "./ChromadinCollection.sol";
 import "./AccessControl.sol";
+import "hardhat/console.sol";
 
 contract ChromadinDrop {
     AccessControl public accessControl;
@@ -87,6 +88,10 @@ contract ChromadinDrop {
         string memory _dropURI
     ) external {
         for (uint256 i = 0; i < _collectionIds.length; i++) {
+            console.log(_collectionIds[i]);
+            console.log(
+                chromadinCollection.getCollectionCreator(_collectionIds[i])
+            );
             require(
                 chromadinCollection.getCollectionCreator(_collectionIds[i]) ==
                     msg.sender &&

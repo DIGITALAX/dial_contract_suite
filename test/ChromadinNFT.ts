@@ -314,6 +314,18 @@ describe("ChromadinNFT + ChromadinCollection", function () {
         "ChromadinNFT: Only collection contract can mint tokens"
       );
     });
+
+    it("fails mint if token and prices are not the same length", async () => {
+      await expect(
+        chromadinCollection.mintCollection(
+          "second_uri",
+          3,
+          "coll_4",
+          [token.address],
+          tokenPrices
+        )
+      ).to.be.revertedWith("ChromadinCollection: Invalid input");
+    });
   });
 
   describe("burn tokens", () => {

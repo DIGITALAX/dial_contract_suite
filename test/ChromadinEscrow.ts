@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { BigNumber } from "ethers";
 
 describe("ChromadinEscrow", function () {
   let accessControl: any,
@@ -10,12 +11,11 @@ describe("ChromadinEscrow", function () {
     chromadinDrop: any,
     chromadinPayment: any,
     admin: any,
-    writer: any,
     nonAdmin: any,
     token: any;
 
   beforeEach(async () => {
-    [admin, writer, nonAdmin] = await ethers.getSigners();
+    [admin, nonAdmin] = await ethers.getSigners();
     const AccessControl = await ethers.getContractFactory("AccessControl");
     const ChromadinEscrow = await ethers.getContractFactory("ChromadinEscrow");
     const ChromadinCollection = await ethers.getContractFactory(
@@ -98,28 +98,203 @@ describe("ChromadinEscrow", function () {
     ]);
   });
 
-  xdescribe("update contracts", () => {
-    xit("updates access", async () => {});
-    xit("updates collection", async () => {});
-    xit("updates marketplace", async () => {});
-    xit("updates nft", async () => {});
-    xit("updates fail for all without admin", async () => {});
+  describe("update contracts", () => {
+    beforeEach("redeploy contracts", async () => {
+      const AccessControl = await ethers.getContractFactory("AccessControl");
+      const ChromadinEscrow = await ethers.getContractFactory(
+        "ChromadinEscrow"
+      );
+      const ChromadinCollection = await ethers.getContractFactory(
+        "ChromadinCollection"
+      );
+      const ChromadinNFT = await ethers.getContractFactory("ChromadinNFT");
+      const ChromadinPayment = await ethers.getContractFactory(
+        "ChromadinPayment"
+      );
+      const ChromadinMarketplace = await ethers.getContractFactory(
+        "ChromadinMarketplace"
+      );
+      const ChromadinDrop = await ethers.getContractFactory("ChromadinDrop");
+
+      accessControl = await AccessControl.deploy(
+        "Chromadin Access Control",
+        "CHROA"
+      );
+      chromadinPayment = await ChromadinPayment.deploy(accessControl.address);
+      chromadinNFT = await ChromadinNFT.deploy(accessControl.address);
+      chromadinCollection = await ChromadinCollection.deploy(
+        chromadinNFT.address,
+        accessControl.address,
+        chromadinPayment.address,
+        "Chromadin Collection",
+        "CHROC"
+      );
+      chromadinMarketplace = await ChromadinMarketplace.deploy(
+        chromadinCollection.address,
+        chromadinPayment.address,
+        accessControl.address,
+        chromadinNFT.address,
+        "Chromadin Marketplace",
+        "CHROM"
+      );
+      chromadinDrop = await ChromadinDrop.deploy(
+        chromadinCollection.address,
+        accessControl.address,
+        "Chromadin Drop",
+        "CHROD"
+      );
+      chromadinEscrow = await ChromadinEscrow.deploy(
+        chromadinCollection.address,
+        chromadinMarketplace.address,
+        accessControl.address,
+        chromadinNFT.address,
+        "Chromadin Escrow",
+        "CHROE"
+      );
+    });
+    it("updates access", async () => {
+      const old = await chromadinEscrow.accessControl();
+      expect(await chromadinEscrow.updateAccessControl(accessControl.address))
+        .to.emit("AccessControlUpdated")
+        .withArgs(old, accessControl.address, admin.address);
+      expect(await chromadinEscrow.accessControl()).to.equal(
+        accessControl.address
+      );
+    });
+    it("updates collection", async () => {
+      const old = await chromadinEscrow.chromadinCollection();
+      expect(
+        await chromadinEscrow.updateChromadinCollection(
+          chromadinCollection.address
+        )
+      )
+        .to.emit("ChromadinCollectionUpdated")
+        .withArgs(old, chromadinCollection.address, admin.address);
+      expect(await chromadinEscrow.chromadinCollection()).to.equal(
+        chromadinCollection.address
+      );
+    });
+    it("updates marketplace", async () => {
+      const old = await chromadinEscrow.chromadinMarketplace();
+      expect(
+        await chromadinEscrow.updateChromadinMarketplace(
+          chromadinMarketplace.address
+        )
+      )
+        .to.emit("ChromadinMarketplaceUpdated")
+        .withArgs(old, chromadinMarketplace.address, admin.address);
+      expect(await chromadinEscrow.chromadinMarketplace()).to.equal(
+        chromadinMarketplace.address
+      );
+    });
+    it("updates nft", async () => {
+      const old = await chromadinEscrow.chromadinNFT();
+      expect(await chromadinEscrow.updateChromadinNFT(chromadinNFT.address))
+        .to.emit("ChromadinNFTUpdated")
+        .withArgs(old, chromadinNFT.address, admin.address);
+      expect(await chromadinEscrow.chromadinNFT()).to.equal(
+        chromadinNFT.address
+      );
+    });
+    it("updates fail for all without admin", async () => {
+      await expect(
+        chromadinEscrow
+          .connect(nonAdmin)
+          .updateAccessControl(accessControl.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinEscrow
+          .connect(nonAdmin)
+          .updateChromadinCollection(chromadinCollection.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinEscrow
+          .connect(nonAdmin)
+          .updateChromadinMarketplace(chromadinMarketplace.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      await expect(
+        chromadinEscrow
+          .connect(nonAdmin)
+          .updateChromadinNFT(chromadinNFT.address)
+      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+    });
   });
 
-  xdescribe("deposit", () => {
-    xit("calls deposit on mint", async () => {});
-    xit("fails deposit if not depositer role", async () => {});
-  });
+  describe("deposit and release", () => {
+    beforeEach("mint collection and add to drop", async () => {
+      await chromadinCollection.mintCollection(
+        "uri",
+        3,
+        "collection_one",
+        [token.address],
+        ["20000"]
+      );
+      await chromadinDrop.createDrop([1], "drop_uri");
+    });
 
-  xdescribe("release", () => {
-    xit("calls deposit on mint", async () => {});
-    xit("fails deposit if not depositer role", async () => {});
-  });
+    describe("deposit", () => {
+      it("calls deposit on mint to escrow", async () => {
+        expect(await chromadinNFT.ownerOf(1)).to.equal(chromadinEscrow.address);
+        expect(await chromadinNFT.ownerOf(2)).to.equal(chromadinEscrow.address);
+        expect(await chromadinNFT.ownerOf(3)).to.equal(chromadinEscrow.address);
+      });
+      it("fails deposit if not depositer role", async () => {
+        await expect(chromadinEscrow.deposit(2, false)).to.be.revertedWith(
+          "ChromadinEscrow: Only the Chromadin Collection or NFT contract can call this function"
+        );
+      });
+    });
 
-  xdescribe("release", () => {
-    xit("calls release on buy", async () => {});
-    xit("calls release on burn", async () => {});
-    xit("fails release if not creator", async () => {});
-    xit("fails release if not buyer", async () => {});
+    describe("release", () => {
+      it("calls release on buy", async () => {
+        // approve buyer
+        token
+          .connect(nonAdmin)
+          .approve(
+            chromadinMarketplace.address,
+            BigNumber.from("50000000000000000000")
+          );
+        await chromadinMarketplace
+          .connect(nonAdmin)
+          .buyTokens([1, 3], token.address, "fulfillment content");
+        expect(await chromadinNFT.ownerOf(1)).to.equal(nonAdmin.address);
+        expect(await chromadinNFT.ownerOf(3)).to.equal(nonAdmin.address);
+      });
+
+      it("calls release on burn", async () => {
+        await chromadinCollection.burnCollection(1);
+        await expect(chromadinNFT.ownerOf(1)).to.be.reverted;
+      });
+      it("fails release if not creator", async () => {
+        await expect(
+          chromadinCollection.connect(nonAdmin).burnCollection(1)
+        ).to.be.revertedWith(
+          "ChromadinCollection: Only the creator can edit this collection"
+        );
+        expect(await chromadinNFT.ownerOf(1)).to.equal(chromadinEscrow.address);
+        expect(await chromadinNFT.ownerOf(2)).to.equal(chromadinEscrow.address);
+        expect(await chromadinNFT.ownerOf(3)).to.equal(chromadinEscrow.address);
+      });
+      it("fails release if not buyer for burn", async () => {
+        await expect(chromadinNFT.connect(nonAdmin).burn(1)).to.be.revertedWith(
+          "ERC721Metadata: Only token owner can burn token"
+        );
+      });
+      it("fails release if not buyer for burn batch", async () => {
+        await expect(
+          chromadinNFT.connect(nonAdmin).burnBatch([1, 3])
+        ).to.be.revertedWith(
+          "ERC721Metadata: Only token owner can burn tokens"
+        );
+      });
+
+      it("fails to release if not release role", async () => {
+        await expect(
+          chromadinEscrow.release(1, false, nonAdmin.address)
+        ).to.be.revertedWith(
+          "ChromadinEscrow: Only the Chromadin Marketplace contract can call this function"
+        );
+      });
+    });
   });
 });
