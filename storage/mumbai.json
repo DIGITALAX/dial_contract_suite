@@ -1,10 +1,10 @@
 {
   "accessControl": "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
   "theDialWhiteList": "0x666cb31B20657F8b1F72Bc69db195274f64719aC",
-  "chromadinNFT": "0xa0B2f6E23745aa254867A93Aad56DdCdbEFB3aa8",
-  "chromadinPayment": "0xa2079eF3Bb10294780B01faCA6F38DFe55AbbDDf",
-  "chromadinCollection": "0xB5352f0BD934f240129fF3E5565EA442A7E7af2f",
-  "chromadinMarketplace": "0x411ddf465dc59914E8ee30af64EA73510a62d247",
-  "chromadinEscrow": "0x34BEc7403bCFfDcc0AaAcf6C16737Cb98CfeDC30",
-  "chromadinDrop": "0x0ba2190C22fB5D97FA8Ade42fF3eAA42E841637b"
+  "chromadinNFT": "0xae4aC419e2a88aDed9DE9fe860E4f95BD3A0308E",
+  "chromadinPayment": "0xbf367718a1E6561733a4D59691AA59792Ae46AF6",
+  "chromadinCollection": "0x3028d027654c6d26eb697565a2884c5dce839731",
+  "chromadinMarketplace": "0x44de31e9460bdad59e38f2306c6488469eb9691c",
+  "chromadinEscrow": "0x883a24A5315c0E4Ff4451E6E2B760338FDC8faE8",
+  "chromadinDrop": "0xf9d12A756e9C97619099CfaCBa21F0020Caf25Bf"
 }

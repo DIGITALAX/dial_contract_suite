@@ -10,7 +10,7 @@ const main = async () => {
     // const theDialWhitelist = await TheDialWhitelist.deploy(
     //   accessControl.address
     // );
-    // const WAIT_BLOCK_CONFIRMATIONS = 20;
+    const WAIT_BLOCK_CONFIRMATIONS = 20;
     // accessControl.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
     // theDialWhitelist.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
     // console.log(`Whitelist Contract deployed at\n${theDialWhitelist.address}`);
@@ -30,36 +30,36 @@ const main = async () => {
     // );
     // const ChromadinDrop = await ethers.getContractFactory("ChromadinDrop");
     // const chromadinPayment = await ChromadinPayment.deploy(
-    //   "0xC79826DBC66A5945Fa29B908ffFC6248454b0804"
+    //   "0x50Aa3895a35087d7cfa81fb347875849083225AE"
     // );
     // const chromadinNFT = await ChromadinNFT.deploy(
-    //   "0xC79826DBC66A5945Fa29B908ffFC6248454b0804"
+    //   "0x50Aa3895a35087d7cfa81fb347875849083225AE"
     // );
     // const chromadinCollection = await ChromadinCollection.deploy(
-    //   "0xa0B2f6E23745aa254867A93Aad56DdCdbEFB3aa8",
-    //   "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
-    //   "0xa2079eF3Bb10294780B01faCA6F38DFe55AbbDDf",
+    //   "0x5b5777c24D8513B8cc3CF5f9471C3A6D5Cb83CAd",
+    //   "0x50Aa3895a35087d7cfa81fb347875849083225AE",
+    //   "0x147c8f1b98efeA8d91D501172aceaDA074eb4E44",
     //   "Chromadin Collection",
     //   "CHROC"
     // );
     // const chromadinMarketplace = await ChromadinMarketplace.deploy(
     //   chromadinCollection.address,
-    //   "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
-    //   "0xa0B2f6E23745aa254867A93Aad56DdCdbEFB3aa8",
+    //   "0x50Aa3895a35087d7cfa81fb347875849083225AE",
+    //   "0x5b5777c24D8513B8cc3CF5f9471C3A6D5Cb83CAd",
     //   "Chromadin Marketplace",
     //   "CHROM"
     // );
     // const chromadinDrop = await ChromadinDrop.deploy(
-    //   "0xB5352f0BD934f240129fF3E5565EA442A7E7af2f",
-    //   "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
+    //   "0x7879BF38C556a48CBe75E69056caF8517Bd6826F",
+    //   "0x50Aa3895a35087d7cfa81fb347875849083225AE",
     //   "Chromadin Drop",
     //   "CHROD"
     // );
     // const chromadinEscrow = await ChromadinEscrow.deploy(
-    //   "0xB5352f0BD934f240129fF3E5565EA442A7E7af2f",
-    //   "0x411ddf465dc59914E8ee30af64EA73510a62d247",
-    //   "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
-    //   "0xa0B2f6E23745aa254867A93Aad56DdCdbEFB3aa8",
+    //   "0x7879BF38C556a48CBe75E69056caF8517Bd6826F",
+    //   "0x9767b700F2Fb86722F084c3af9A46E919FAdDC4f",
+    //   "0x50Aa3895a35087d7cfa81fb347875849083225AE",
+    //   "0x5b5777c24D8513B8cc3CF5f9471C3A6D5Cb83CAd",
     //   "Chromadin Escrow",
     //   "CHROE"
     // );
@@ -86,61 +86,61 @@ const main = async () => {
     //   `Chromadin Escrow Contract deployed at\n${chromadinEscrow.address}`
     // );
     // await run(`verify:verify`, {
-    //   address: "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
+    //   address: "0x50Aa3895a35087d7cfa81fb347875849083225AE",
     //   constructorArguments: ["AccessControl", "CHROA"],
     // });
     // await run(`verify:verify`, {
-    //   address: "0x666cb31B20657F8b1F72Bc69db195274f64719aC",
-    //   constructorArguments: ["0xC79826DBC66A5945Fa29B908ffFC6248454b0804"],
+    //   address: "0x464E4c5B9d8573986132c758C900f374e9165D2C",
+    //   constructorArguments: ["0x50Aa3895a35087d7cfa81fb347875849083225AE"],
     // });
     // await run(`verify:verify`, {
-    //   address: "0xa2079eF3Bb10294780B01faCA6F38DFe55AbbDDf",
-    //   constructorArguments: ["0xC79826DBC66A5945Fa29B908ffFC6248454b0804"],
+    //   address: "0x5b5777c24D8513B8cc3CF5f9471C3A6D5Cb83CAd",
+    //   constructorArguments: ["0x50Aa3895a35087d7cfa81fb347875849083225AE"],
     // });
     // await run(`verify:verify`, {
-    //   address: "0xa0B2f6E23745aa254867A93Aad56DdCdbEFB3aa8",
-    //   constructorArguments: ["0xC79826DBC66A5945Fa29B908ffFC6248454b0804"],
+    //   address: "0x147c8f1b98efeA8d91D501172aceaDA074eb4E44",
+    //   constructorArguments: ["0x50Aa3895a35087d7cfa81fb347875849083225AE"],
     // });
     // await run(`verify:verify`, {
-    //   address: "0xB5352f0BD934f240129fF3E5565EA442A7E7af2f",
+    //   address: "0x7879BF38C556a48CBe75E69056caF8517Bd6826F",
     //   constructorArguments: [
-    //     "0xa0B2f6E23745aa254867A93Aad56DdCdbEFB3aa8",
-    //     "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
-    //     "0xa2079eF3Bb10294780B01faCA6F38DFe55AbbDDf",
+    //     "0x5b5777c24D8513B8cc3CF5f9471C3A6D5Cb83CAd",
+    //     "0x50Aa3895a35087d7cfa81fb347875849083225AE",
+    //     "0x147c8f1b98efeA8d91D501172aceaDA074eb4E44",
     //     "Chromadin Collection",
     //     "CHROC",
     //   ],
     // });
     // await run(`verify:verify`, {
-    //   address: "0x411ddf465dc59914E8ee30af64EA73510a62d247",
+    //   address: "0x9767b700F2Fb86722F084c3af9A46E919FAdDC4f",
     //   constructorArguments: [
-    //     "0xB5352f0BD934f240129fF3E5565EA442A7E7af2f",
-    //     "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
-    //     "0xa0B2f6E23745aa254867A93Aad56DdCdbEFB3aa8",
+    //     "0x7879BF38C556a48CBe75E69056caF8517Bd6826F",
+    //     "0x50Aa3895a35087d7cfa81fb347875849083225AE",
+    //     "0x5b5777c24D8513B8cc3CF5f9471C3A6D5Cb83CAd",
     //     "Chromadin Marketplace",
     //     "CHROM",
     //   ],
     // });
-    // await run(`verify:verify`, {
-    //   address: "0x0ba2190C22fB5D97FA8Ade42fF3eAA42E841637b",
-    //   constructorArguments: [
-    //     "0xB5352f0BD934f240129fF3E5565EA442A7E7af2f",
-    //     "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
-    //     "Chromadin Drop",
-    //     "CHROD",
-    //   ],
-    // });
-    // await run(`verify:verify`, {
-    //   address: "0x34BEc7403bCFfDcc0AaAcf6C16737Cb98CfeDC30",
-    //   constructorArguments: [
-    //     "0xB5352f0BD934f240129fF3E5565EA442A7E7af2f",
-    //     "0x411ddf465dc59914E8ee30af64EA73510a62d247",
-    //     "0xC79826DBC66A5945Fa29B908ffFC6248454b0804",
-    //     "0xa0B2f6E23745aa254867A93Aad56DdCdbEFB3aa8",
-    //     "Chromadin Escrow",
-    //     "CHROE",
-    //   ],
-    // });
+    await run(`verify:verify`, {
+      address: "0x1DDccd7A89c98c963d218269Ea954813dB1c8C35",
+      constructorArguments: [
+        "0x7879BF38C556a48CBe75E69056caF8517Bd6826F",
+        "0x50Aa3895a35087d7cfa81fb347875849083225AE",
+        "Chromadin Drop",
+        "CHROD",
+      ],
+    });
+    await run(`verify:verify`, {
+      address: "0xb9025d4b2A9581080205300bBc363480A50cCfd2",
+      constructorArguments: [
+        "0x7879BF38C556a48CBe75E69056caF8517Bd6826F",
+        "0x9767b700F2Fb86722F084c3af9A46E919FAdDC4f",
+        "0x50Aa3895a35087d7cfa81fb347875849083225AE",
+        "0x5b5777c24D8513B8cc3CF5f9471C3A6D5Cb83CAd",
+        "Chromadin Escrow",
+        "CHROE",
+      ],
+    });
   } catch (err: any) {
     console.error(err.message);
   }

@@ -28,15 +28,17 @@ contract ChromadinNFT is ERC721Enumerable {
 
     event BatchTokenMinted(address indexed to, uint256[] tokenIds, string uri);
     event AccessControlUpdated(
+        address indexed oldAccessControl,
+        address indexed newAccessControl,
+        address updater
+    );
+    event ChromadinCollectionUpdated(
         address indexed oldChromadinCollection,
         address indexed newChromadinCollection,
         address updater
     );
-    event ChromadinCollectionUpdated(
-        address indexed newChromadinCollection,
-        address updater
-    );
     event ChromadinEscrowUpdated(
+        address indexed oldChromadinEscrow,
         address indexed newChromadinEscrow,
         address updater
     );
@@ -154,8 +156,10 @@ contract ChromadinNFT is ERC721Enumerable {
     function setChromadinCollection(
         address _chromadinCollectionAddress
     ) external onlyAdmin {
+        address oldAddress = address(chromadinCollection);
         chromadinCollection = ChromadinCollection(_chromadinCollectionAddress);
         emit ChromadinCollectionUpdated(
+            oldAddress,
             _chromadinCollectionAddress,
             msg.sender
         );
@@ -164,8 +168,13 @@ contract ChromadinNFT is ERC721Enumerable {
     function setChromadinEscrow(
         address _chromadinEscrowAddress
     ) external onlyAdmin {
+        address oldAddress = address(chromadinEscrow);
         chromadinEscrow = ChromadinEscrow(_chromadinEscrowAddress);
-        emit ChromadinEscrowUpdated(_chromadinEscrowAddress, msg.sender);
+        emit ChromadinEscrowUpdated(
+            oldAddress,
+            _chromadinEscrowAddress,
+            msg.sender
+        );
     }
 
     function updateAccessControl(

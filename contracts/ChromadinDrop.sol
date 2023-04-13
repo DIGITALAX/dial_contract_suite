@@ -39,14 +39,14 @@ contract ChromadinDrop {
     event DropURIUpdated(uint256 indexed dropId, string dropURI);
 
     event AccessControlUpdated(
-        address indexed oldAccessControls,
-        address indexed newAccessControls,
+        address indexed oldAccessControl,
+        address indexed newAccessControl,
         address updater
     );
 
     event ChromadinCollectionUpdated(
-        address indexed oldChromadinNFT,
-        address indexed newChromadinNFT,
+        address indexed oldChromadinCollection,
+        address indexed newChromadinCollection,
         address updater
     );
 
