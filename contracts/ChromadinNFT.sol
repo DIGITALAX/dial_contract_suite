@@ -17,7 +17,10 @@ contract ChromadinNFT is ERC721Enumerable {
         uint256 tokenId;
         uint256 collectionId;
         address[] acceptedTokens;
-        uint256[] prices;
+        uint256[] apparelPrices;
+        uint256[] posterPrices;
+        uint256[] stickerPrices;
+        uint256[] basePrices;
         address creator;
         string uri;
         bool isBurned;
@@ -43,10 +46,28 @@ contract ChromadinNFT is ERC721Enumerable {
         address updater
     );
     event TokenBurned(uint256 indexed tokenId);
-    event TokenPricesUpdated(
+    event TokenStickerPricesUpdated(
         uint256 indexed tokenId,
-        uint256[] oldPrices,
-        uint256[] newPrices,
+        uint256[] oldStickerPrices,
+        uint256[] newStickerPrices,
+        address updater
+    );
+    event TokenApparelPricesUpdated(
+        uint256 indexed tokenId,
+        uint256[] oldApparelPrices,
+        uint256[] newApparelPrices,
+        address updater
+    );
+    event TokenPosterPricesUpdated(
+        uint256 indexed tokenId,
+        uint256[] oldPosterPrices,
+        uint256[] newPosterPrices,
+        address updater
+    );
+    event TokenBasePriceUpdated(
+        uint256 indexed tokenId,
+        uint256[] oldPrice,
+        uint256[] newPrice,
         address updater
     );
     event TokenAcceptedTokensUpdated(
@@ -106,7 +127,10 @@ contract ChromadinNFT is ERC721Enumerable {
         uint256 _collectionId,
         address _creator,
         address[] memory _acceptedTokens,
-        uint256[] memory _prices
+        uint256[] memory _basePrices,
+        uint256[] memory _posterPrices,
+        uint256[] memory _apparelPrices,
+        uint256[] memory _stickerPrices
     ) public onlyCollectionContract {
         uint256[] memory tokenIds = new uint256[](_amount);
         for (uint256 i = 0; i < _amount; i++) {
@@ -114,7 +138,10 @@ contract ChromadinNFT is ERC721Enumerable {
                 tokenId: super.totalSupply() + 1,
                 collectionId: _collectionId,
                 acceptedTokens: _acceptedTokens,
-                prices: _prices,
+                apparelPrices: _apparelPrices,
+                posterPrices: _posterPrices,
+                stickerPrices: _stickerPrices,
+                basePrices: _basePrices,
                 creator: _creator,
                 uri: _uri,
                 isBurned: false,
@@ -205,10 +232,28 @@ contract ChromadinNFT is ERC721Enumerable {
         return tokens[_tokenId].acceptedTokens;
     }
 
-    function getTokenPrices(
+    function getBasePrices(
         uint256 _tokenId
     ) public view returns (uint256[] memory) {
-        return tokens[_tokenId].prices;
+        return tokens[_tokenId].basePrices;
+    }
+
+    function getStickerPrices(
+        uint256 _tokenId
+    ) public view returns (uint256[] memory) {
+        return tokens[_tokenId].stickerPrices;
+    }
+
+    function getApparelPrices(
+        uint256 _tokenId
+    ) public view returns (uint256[] memory) {
+        return tokens[_tokenId].apparelPrices;
+    }
+
+    function getPosterPrices(
+        uint256 _tokenId
+    ) public view returns (uint256[] memory) {
+        return tokens[_tokenId].posterPrices;
     }
 
     function getTokenCollection(
@@ -243,13 +288,55 @@ contract ChromadinNFT is ERC721Enumerable {
         );
     }
 
-    function setTokenPrices(
+    function setBasePrices(
         uint256 _tokenId,
         uint256[] memory _newPrices
     ) public onlyCollectionContract tokensInEscrow(_tokenId) {
-        uint256[] memory oldTokens = tokens[_tokenId].prices;
-        tokens[_tokenId].prices = _newPrices;
-        emit TokenPricesUpdated(_tokenId, oldTokens, _newPrices, msg.sender);
+        uint256[] memory oldPrices = tokens[_tokenId].basePrices;
+        tokens[_tokenId].basePrices = _newPrices;
+        emit TokenBasePriceUpdated(_tokenId, oldPrices, _newPrices, msg.sender);
+    }
+
+    function setStickerPrices(
+        uint256 _tokenId,
+        uint256[] memory _newStickerPrices
+    ) public onlyCollectionContract tokensInEscrow(_tokenId) {
+        uint256[] memory oldStickerPrices = tokens[_tokenId].stickerPrices;
+        tokens[_tokenId].stickerPrices = _newStickerPrices;
+        emit TokenStickerPricesUpdated(
+            _tokenId,
+            oldStickerPrices,
+            _newStickerPrices,
+            msg.sender
+        );
+    }
+
+    function setApparelPrices(
+        uint256 _tokenId,
+        uint256[] memory _newApparelPrices
+    ) public onlyCollectionContract tokensInEscrow(_tokenId) {
+        uint256[] memory oldApparelPrices = tokens[_tokenId].apparelPrices;
+        tokens[_tokenId].apparelPrices = _newApparelPrices;
+        emit TokenApparelPricesUpdated(
+            _tokenId,
+            oldApparelPrices,
+            _newApparelPrices,
+            msg.sender
+        );
+    }
+
+    function setPosterPrices(
+        uint256 _tokenId,
+        uint256[] memory _newPosterPrices
+    ) public onlyCollectionContract tokensInEscrow(_tokenId) {
+        uint256[] memory oldPosterPrices = tokens[_tokenId].posterPrices;
+        tokens[_tokenId].posterPrices = _newPosterPrices;
+        emit TokenPosterPricesUpdated(
+            _tokenId,
+            oldPosterPrices,
+            _newPosterPrices,
+            msg.sender
+        );
     }
 
     function setTokenURI(

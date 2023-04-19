@@ -16,7 +16,6 @@ contract ChromadinMarketplace {
     string public symbol;
     string public name;
 
-    mapping(address => string[]) private buyerToFulfillment;
     mapping(uint256 => uint256) private tokensSold;
     mapping(uint256 => uint256[]) private tokenIdsSold;
 
@@ -66,8 +65,7 @@ contract ChromadinMarketplace {
 
     function buyTokens(
         uint256[] memory _tokenIds,
-        address _chosenTokenAddress,
-        string memory _fulfillmentContent
+        address _chosenTokenAddress
     ) external {
         uint256 totalPrice = 0;
         uint256[] memory prices = new uint256[](_tokenIds.length);
@@ -97,7 +95,7 @@ contract ChromadinMarketplace {
                 .getTokenAcceptedTokens(_tokenIds[i]);
             for (uint256 j = 0; j < acceptedTokens.length; j++) {
                 if (acceptedTokens[j] == _chosenTokenAddress) {
-                    prices[i] = chromadinNFT.getTokenPrices(_tokenIds[i])[j];
+                    prices[i] = chromadinNFT.getBasePrices(_tokenIds[i])[j];
                     totalPrice += prices[i];
                     break;
                 }
@@ -131,7 +129,6 @@ contract ChromadinMarketplace {
             chromadinEscrow.release(_tokenIds[i], false, msg.sender);
         }
 
-        buyerToFulfillment[msg.sender].push(_fulfillmentContent);
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             tokensSold[chromadinNFT.getTokenCollection(_tokenIds[i])] += 1;
             tokenIdsSold[chromadinNFT.getTokenCollection(_tokenIds[i])].push(
@@ -140,24 +137,6 @@ contract ChromadinMarketplace {
         }
 
         emit TokensBought(_tokenIds, totalPrice, msg.sender);
-    }
-
-    function removeFulfillmentContent(
-        uint index,
-        address _address
-    ) external onlyAdmin {
-        require(
-            index < buyerToFulfillment[_address].length,
-            "ChromadinMarketplace: Index out of range"
-        );
-
-        for (uint i = index; i < buyerToFulfillment[_address].length - 1; i++) {
-            buyerToFulfillment[_address][i] = buyerToFulfillment[_address][
-                i + 1
-            ];
-        }
-
-        buyerToFulfillment[_address].pop();
     }
 
     function updateAccessControl(
@@ -208,12 +187,6 @@ contract ChromadinMarketplace {
             _newChromadinEscrowAddress,
             msg.sender
         );
-    }
-
-    function getBuyerToFulfillment(
-        address _address
-    ) public view returns (string[] memory) {
-        return buyerToFulfillment[_address];
     }
 
     function getCollectionSoldCount(
