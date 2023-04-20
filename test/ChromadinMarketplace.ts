@@ -228,14 +228,40 @@ describe("ChromadinMarketplace", function () {
         10,
         "col 1",
         [token.address],
-        ["20000"]
+        ["20000"],
+        ["7000000000000000000", "32000000000000000000", "54000000000000000000"],
+        ["200000000000000000", "1200000000000000000", "200000000000000000"],
+        [
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+        ]
       );
       await chromadinCollection.mintCollection(
         "uri2",
         10,
         "col 2",
         [token.address],
-        ["20000"]
+        ["20000"],
+        ["7000000000000000000", "32000000000000000000", "54000000000000000000"],
+        ["200000000000000000", "1200000000000000000", "200000000000000000"],
+        [
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+        ]
       );
       await chromadinDrop.createDrop([1, 2], "drop_uri_1");
 
@@ -244,14 +270,40 @@ describe("ChromadinMarketplace", function () {
         4,
         "col 3",
         [token.address],
-        ["20000"]
+        ["20000"],
+        ["7000000000000000000", "32000000000000000000", "54000000000000000000"],
+        ["200000000000000000", "1200000000000000000", "200000000000000000"],
+        [
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+        ]
       );
       await chromadinCollection.mintCollection(
         "uri4",
         4,
         "col 4",
         [token.address],
-        ["20000"]
+        ["20000"],
+        ["7000000000000000000", "32000000000000000000", "54000000000000000000"],
+        ["200000000000000000", "1200000000000000000", "200000000000000000"],
+        [
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+        ]
       );
       await chromadinDrop.createDrop([3, 4], "drop_uri_2");
     });
@@ -269,7 +321,7 @@ describe("ChromadinMarketplace", function () {
         expect(
           await chromadinMarketplace
             .connect(nonAdmin)
-            .buyTokens([6], token.address, "content")
+            .buyTokens([6], token.address)
         )
           .to.emit("TokensBought")
           .withArgs([1], "20000", nonAdmin.address);
@@ -278,7 +330,7 @@ describe("ChromadinMarketplace", function () {
         expect(
           await chromadinMarketplace
             .connect(nonAdmin)
-            .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address, "content")
+            .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address)
         )
           .to.emit("TokensBought")
           .withArgs([1, 5, 10, 11, 27, 26, 22], "1400000", nonAdmin.address);
@@ -287,7 +339,7 @@ describe("ChromadinMarketplace", function () {
         await expect(
           chromadinMarketplace
             .connect(admin)
-            .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address, "content")
+            .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address)
         ).to.be.revertedWith(
           "ChromadinMarketplace: Insufficient Approval Allowance"
         );
@@ -296,11 +348,11 @@ describe("ChromadinMarketplace", function () {
       it("reject purchase if token not in escrow", async () => {
         await chromadinMarketplace
           .connect(nonAdmin)
-          .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address, "content");
+          .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address);
         await expect(
           chromadinMarketplace
             .connect(nonAdmin)
-            .buyTokens([22, 10, 3], token.address, "content")
+            .buyTokens([22, 10, 3], token.address)
         ).to.be.revertedWith(
           "ChromadinMarketplace: Token must be owned by Escrow"
         );
@@ -317,21 +369,55 @@ describe("ChromadinMarketplace", function () {
           10,
           "col 1",
           [token.address],
-          ["50000000000000000000"]
+          ["50000000000000000000"],
+          [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+          ],
+          ["200000000000000000", "1200000000000000000", "200000000000000000"],
+          [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+          ]
         );
         await chromadinCollection.mintCollection(
           "uri2",
           10,
           "col 2",
           [token.address],
-          ["50000000000000000000"]
+          ["50000000000000000000"],
+          [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+          ],
+          ["200000000000000000", "1200000000000000000", "200000000000000000"],
+          [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+          ]
         );
         await chromadinDrop.createDrop([5, 6], "drop_uri_3");
 
         await expect(
           chromadinMarketplace
             .connect(nonAdmin)
-            .buyTokens([29, 30, 40], token.address, "content")
+            .buyTokens([29, 30, 40], token.address)
         ).to.be.revertedWith("ChromadinMarketplace: Insufficient balance");
       });
 
@@ -347,21 +433,53 @@ describe("ChromadinMarketplace", function () {
           10,
           "col 1",
           [token.address],
-          ["50000000000000000000"]
+          ["50000000000000000000"],
+          [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+          ],
+          ["200000000000000000", "1200000000000000000", "200000000000000000"],
+          [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+          ]
         );
         await chromadinCollection.mintCollection(
           "uri2",
           10,
           "col 2",
           [token.address],
-          ["50000000000000000000"]
+          ["50000000000000000000"],
+          [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+          ],
+          ["200000000000000000", "1200000000000000000", "200000000000000000"],
+          [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+          ]
         );
         await chromadinDrop.createDrop([5, 6], "drop_uri_3");
 
         await expect(
-          chromadinMarketplace
-            .connect(nonAdmin)
-            .buyTokens([29], token.address, "content")
+          chromadinMarketplace.connect(nonAdmin).buyTokens([29], token.address)
         ).to.be.revertedWith(
           "ChromadinMarketplace: Insufficient Approval Allowance"
         );
@@ -371,8 +489,7 @@ describe("ChromadinMarketplace", function () {
         await expect(
           chromadinMarketplace.buyTokens(
             [13],
-            "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
-            "content"
+            "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
           )
         ).to.be.revertedWith(
           "ChromadinMarketplace: Chosen token address is not an accepted token for the collection"
@@ -390,7 +507,7 @@ describe("ChromadinMarketplace", function () {
           );
         chromadinMarketplace
           .connect(nonAdmin)
-          .buyTokens([1, 12, 24, 27, 28], token.address, "content");
+          .buyTokens([1, 12, 24, 27, 28], token.address);
       });
       it("map how many have been sold in collection", async () => {
         expect(await chromadinMarketplace.getCollectionSoldCount(1)).to.equal(
@@ -419,81 +536,6 @@ describe("ChromadinMarketplace", function () {
         expect(
           await chromadinMarketplace.getTokensSoldCollection(4)
         ).to.deep.equal([BigNumber.from("27"), BigNumber.from("28")]);
-      });
-    });
-
-    describe("maps fulfillment content", () => {
-      beforeEach("approve", async () => {
-        token
-          .connect(nonAdmin)
-          .approve(
-            chromadinMarketplace.address,
-            BigNumber.from("50000000000000000000")
-          );
-      });
-
-      it("fulfillment content mapped once", async () => {
-        await chromadinMarketplace
-          .connect(nonAdmin)
-          .buyTokens([6], token.address, "content");
-        expect(
-          await chromadinMarketplace.getBuyerToFulfillment(nonAdmin.address)
-        ).to.deep.equal(["content"]);
-      });
-
-      it("fulfillment content added to on new purchase", async () => {
-        await chromadinMarketplace
-          .connect(nonAdmin)
-          .buyTokens([6], token.address, "content");
-        await chromadinMarketplace
-          .connect(nonAdmin)
-          .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address, "content");
-        expect(
-          await chromadinMarketplace.getBuyerToFulfillment(nonAdmin.address)
-        ).to.deep.equal(["content", "content"]);
-      });
-
-      it("fulfillment content removed by admin", async () => {
-        await chromadinMarketplace
-          .connect(nonAdmin)
-          .buyTokens([6], token.address, "content");
-        await chromadinMarketplace
-          .connect(nonAdmin)
-          .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address, "content");
-        await chromadinMarketplace.removeFulfillmentContent(
-          1,
-          nonAdmin.address
-        );
-        expect(
-          await chromadinMarketplace.getBuyerToFulfillment(nonAdmin.address)
-        ).to.deep.equal(["content"]);
-
-        await chromadinMarketplace.removeFulfillmentContent(
-          0,
-          nonAdmin.address
-        );
-        expect(
-          await chromadinMarketplace.getBuyerToFulfillment(nonAdmin.address)
-        ).to.deep.equal([]);
-      });
-
-      it("fails fulfillment content removal if not admin role", async () => {
-        await chromadinMarketplace
-          .connect(nonAdmin)
-          .buyTokens([6], token.address, "content");
-        await expect(
-          chromadinMarketplace
-            .connect(nonAdmin)
-            .removeFulfillmentContent(1, nonAdmin.address)
-        ).to.be.revertedWith(
-          "AccessControl: Only admin can perform this action"
-        );
-      });
-
-      it("fails fulfillment content removal if index out of range", async () => {
-        await expect(
-          chromadinMarketplace.removeFulfillmentContent(1, nonAdmin.address)
-        ).to.be.revertedWith("ChromadinMarketplace: Index out of range");
       });
     });
   });

@@ -102,7 +102,10 @@ describe("ChromadinDrop", function () {
     collection_name: string,
     amount: number,
     acceptedTokens: string[],
-    tokenPrices: string[];
+    basePrices: string[],
+    stickerPrices: string[],
+    apparelPrices: string[],
+    posterPrices: string[];
 
   beforeEach("mint the collection", async () => {
     uri = "ipfs://newtoken";
@@ -113,10 +116,31 @@ describe("ChromadinDrop", function () {
       "0x0000000000000000000000000000000000001010",
       "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
     ];
-    tokenPrices = [
+    basePrices = [
       "200000000000000000",
       "1200000000000000000",
       "200000000000000000",
+    ];
+    stickerPrices = [
+      "7000000000000000000",
+      "32000000000000000000",
+      "54000000000000000000",
+    ];
+    apparelPrices = [
+      "200000000000000000",
+      "1200000000000000000",
+      "200000000000000000",
+    ];
+    posterPrices = [
+      "7000000000000000000",
+      "32000000000000000000",
+      "54000000000000000000",
+      "7000000000000000000",
+      "32000000000000000000",
+      "54000000000000000000",
+      "7000000000000000000",
+      "32000000000000000000",
+      "54000000000000000000",
     ];
 
     await chromadinCollection.mintCollection(
@@ -124,7 +148,10 @@ describe("ChromadinDrop", function () {
       amount,
       collection_name,
       acceptedTokens,
-      tokenPrices
+      basePrices,
+      stickerPrices,
+      apparelPrices,
+      posterPrices
     );
   });
 
@@ -136,14 +163,20 @@ describe("ChromadinDrop", function () {
         amount,
         collection_name,
         acceptedTokens,
-        tokenPrices
+        basePrices,
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
       await chromadinCollection.mintCollection(
         uri,
         amount,
         collection_name,
         acceptedTokens,
-        tokenPrices
+        basePrices,
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
     });
 
@@ -188,14 +221,20 @@ describe("ChromadinDrop", function () {
         amount,
         collection_name,
         acceptedTokens,
-        tokenPrices
+        basePrices,
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
       await chromadinCollection.mintCollection(
         uri,
         amount,
         collection_name,
         acceptedTokens,
-        tokenPrices
+        basePrices,
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
       await chromadinDrop.createDrop([1, 2, 3], "drop_uri");
     });
@@ -206,7 +245,10 @@ describe("ChromadinDrop", function () {
         amount,
         collection_name,
         acceptedTokens,
-        tokenPrices
+        basePrices,
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
       expect(await chromadinDrop.addCollectionToDrop(1, 4))
         .to.emit("CollectionAddedToDrop")
@@ -336,14 +378,20 @@ describe("ChromadinDrop", function () {
         amount,
         collection_name,
         acceptedTokens,
-        tokenPrices
+        basePrices,
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
       await chromadinCollection.mintCollection(
         uri,
         amount,
         collection_name,
         acceptedTokens,
-        tokenPrices
+        basePrices,
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
       await chromadinDrop.createDrop([1, 2, 3], "drop_uri");
       blockNumber = await ethers.provider.getBlockNumber();

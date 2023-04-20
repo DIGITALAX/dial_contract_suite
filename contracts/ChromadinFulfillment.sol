@@ -144,13 +144,31 @@ contract ChromadinFulfillment {
 
         orderSupply++;
 
+        transferPayment(
+            _tokenId,
+            _uri,
+            _chosenTokenAddress,
+            totalPrice,
+            _fulfillerId
+        );
+
+        emit OrderCreated(orderSupply, msg.sender, totalPrice);
+    }
+
+    function transferPayment(
+        uint256 _tokenId,
+        string memory _uri,
+        address _chosenTokenAddress,
+        uint256 _totalPrice,
+        uint256 _fulfillerId
+    ) internal {
         Order memory newOrder = Order({
             orderId: orderSupply,
             tokenId: _tokenId,
             uri: _uri,
             buyer: msg.sender,
             chosenAddress: _chosenTokenAddress,
-            totalPrice: totalPrice,
+            totalPrice: _totalPrice,
             timestamp: block.timestamp,
             status: "ordered",
             isFulfilled: false,
@@ -158,20 +176,21 @@ contract ChromadinFulfillment {
         });
 
         orders[orderSupply] = newOrder;
+        address creator = chromadinNFT.getTokenCreator(_tokenId);
 
         IERC20(_chosenTokenAddress).transferFrom(
             msg.sender,
-            chromadinNFT.getTokenCreator(_tokenId),
-            totalPrice - totalPrice * fulfillers[_fulfillerId].fulfillerPercent
+            creator,
+            _totalPrice -
+                _totalPrice *
+                fulfillers[_fulfillerId].fulfillerPercent
         );
 
         IERC20(_chosenTokenAddress).transferFrom(
             msg.sender,
             fulfillers[_fulfillerId].fulfillerAddress,
-            totalPrice * fulfillers[_fulfillerId].fulfillerPercent
+            _totalPrice * fulfillers[_fulfillerId].fulfillerPercent
         );
-
-        emit OrderCreated(orderSupply, msg.sender, totalPrice);
     }
 
     function calculateTotalPrice(

@@ -225,7 +225,20 @@ describe("ChromadinEscrow", function () {
         3,
         "collection_one",
         [token.address],
-        ["20000"]
+        ["20000"],
+        ["7000000000000000000", "32000000000000000000", "54000000000000000000"],
+        ["200000000000000000", "1200000000000000000", "200000000000000000"],
+        [
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+          "7000000000000000000",
+          "32000000000000000000",
+          "54000000000000000000",
+        ]
       );
       await chromadinDrop.createDrop([1], "drop_uri");
     });
@@ -254,7 +267,7 @@ describe("ChromadinEscrow", function () {
           );
         await chromadinMarketplace
           .connect(nonAdmin)
-          .buyTokens([1, 3], token.address, "fulfillment content");
+          .buyTokens([1, 3], token.address);
         expect(await chromadinNFT.ownerOf(1)).to.equal(nonAdmin.address);
         expect(await chromadinNFT.ownerOf(3)).to.equal(nonAdmin.address);
       });
