@@ -151,25 +151,27 @@ describe("ChromadinMarketplace", function () {
     });
     it("updates access", async () => {
       const old = await chromadinMarketplace.accessControl();
-      expect(
-        await chromadinMarketplace.updateAccessControl(
-          chromadinMarketplace.address
-        )
+      (
+        expect(
+          await chromadinMarketplace.updateAccessControl(accessControl.address)
+        ).to as any
       )
-        .to.emit("AccessControlUpdated")
-        .withArgs(old, chromadinMarketplace.address, admin.address);
+        .emit("AccessControlUpdated")
+        .withArgs(old, accessControl.address, admin.address);
       expect(await chromadinMarketplace.accessControl()).to.equal(
-        chromadinMarketplace.address
+        accessControl.address
       );
     });
     it("updates collection", async () => {
       const old = await chromadinMarketplace.chromadinCollection();
-      expect(
-        await chromadinMarketplace.updateChromadinCollection(
-          chromadinCollection.address
-        )
+      (
+        expect(
+          await chromadinMarketplace.updateChromadinCollection(
+            chromadinCollection.address
+          )
+        ).to as any
       )
-        .to.emit("ChromadinCollectionUpdated")
+        .emit("ChromadinCollectionUpdated")
         .withArgs(old, chromadinCollection.address, admin.address);
       expect(await chromadinMarketplace.chromadinCollection()).to.equal(
         chromadinCollection.address
@@ -177,10 +179,12 @@ describe("ChromadinMarketplace", function () {
     });
     it("updates escrow", async () => {
       const old = await chromadinMarketplace.chromadinEscrow();
-      expect(
-        await chromadinMarketplace.setChromadinEscrow(chromadinEscrow.address)
+      (
+        expect(
+          await chromadinMarketplace.setChromadinEscrow(chromadinEscrow.address)
+        ).to as any
       )
-        .to.emit("ChromadinEscrowUpdated")
+        .emit("ChromadinEscrowUpdated")
         .withArgs(old, chromadinEscrow.address, admin.address);
       expect(await chromadinMarketplace.chromadinEscrow()).to.equal(
         chromadinEscrow.address
@@ -188,36 +192,46 @@ describe("ChromadinMarketplace", function () {
     });
     it("updates nft", async () => {
       const old = await chromadinMarketplace.chromadinNFT();
-      expect(
-        await chromadinMarketplace.updateChromadinNFT(chromadinNFT.address)
+      (
+        expect(
+          await chromadinMarketplace.updateChromadinNFT(chromadinNFT.address)
+        ).to as any
       )
-        .to.emit("ChromadinNFTUpdated")
+        .emit("ChromadinNFTUpdated")
         .withArgs(old, chromadinNFT.address, admin.address);
       expect(await chromadinMarketplace.chromadinNFT()).to.equal(
         chromadinNFT.address
       );
     });
     it("updates fail for all without admin", async () => {
-      await expect(
-        chromadinMarketplace
-          .connect(nonAdmin)
-          .updateChromadinNFT(chromadinNFT.address)
-      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
-      await expect(
-        chromadinMarketplace
-          .connect(nonAdmin)
-          .updateChromadinCollection(chromadinCollection.address)
-      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
-      await expect(
-        chromadinMarketplace
-          .connect(nonAdmin)
-          .setChromadinEscrow(chromadinEscrow.address)
-      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
-      await expect(
-        chromadinMarketplace
-          .connect(nonAdmin)
-          .updateAccessControl(accessControl.address)
-      ).to.be.revertedWith("AccessControl: Only admin can perform this action");
+      (
+        (await expect(
+          chromadinMarketplace
+            .connect(nonAdmin)
+            .updateChromadinNFT(chromadinNFT.address)
+        ).to) as any
+      ).be.revertedWith("AccessControl: Only admin can perform this action");
+      (
+        (await expect(
+          chromadinMarketplace
+            .connect(nonAdmin)
+            .updateChromadinCollection(chromadinCollection.address)
+        ).to.be) as any
+      ).revertedWith("AccessControl: Only admin can perform this action");
+      (
+        (await expect(
+          chromadinMarketplace
+            .connect(nonAdmin)
+            .setChromadinEscrow(chromadinEscrow.address)
+        ).to.be) as any
+      ).revertedWith("AccessControl: Only admin can perform this action");
+      (
+        (await expect(
+          chromadinMarketplace
+            .connect(nonAdmin)
+            .updateAccessControl(accessControl.address)
+        ).to.be) as any
+      ).revertedWith("AccessControl: Only admin can perform this action");
     });
   });
 
@@ -318,44 +332,48 @@ describe("ChromadinMarketplace", function () {
           );
       });
       it("purchase one token", async () => {
-        expect(
-          await chromadinMarketplace
-            .connect(nonAdmin)
-            .buyTokens([6], token.address)
+        (
+          expect(
+            await chromadinMarketplace
+              .connect(nonAdmin)
+              .buyTokens([6], token.address)
+          ).to as any
         )
-          .to.emit("TokensBought")
+          .emit("TokensBought")
           .withArgs([1], "20000", nonAdmin.address);
       });
       it("purchase multiple tokens", async () => {
-        expect(
-          await chromadinMarketplace
-            .connect(nonAdmin)
-            .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address)
+        (
+          expect(
+            await chromadinMarketplace
+              .connect(nonAdmin)
+              .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address)
+          ).to as any
         )
-          .to.emit("TokensBought")
+          .emit("TokensBought")
           .withArgs([1, 5, 10, 11, 27, 26, 22], "1400000", nonAdmin.address);
       });
       it("reject purchase if not approved", async () => {
-        await expect(
-          chromadinMarketplace
-            .connect(admin)
-            .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address)
-        ).to.be.revertedWith(
-          "ChromadinMarketplace: Insufficient Approval Allowance"
-        );
+        (
+          (await expect(
+            chromadinMarketplace
+              .connect(admin)
+              .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address)
+          ).to.be) as any
+        ).revertedWith("ChromadinMarketplace: Insufficient Approval Allowance");
       });
 
       it("reject purchase if token not in escrow", async () => {
         await chromadinMarketplace
           .connect(nonAdmin)
           .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address);
-        await expect(
-          chromadinMarketplace
-            .connect(nonAdmin)
-            .buyTokens([22, 10, 3], token.address)
-        ).to.be.revertedWith(
-          "ChromadinMarketplace: Token must be owned by Escrow"
-        );
+        (
+          (await expect(
+            chromadinMarketplace
+              .connect(nonAdmin)
+              .buyTokens([22, 10, 3], token.address)
+          ).to.be) as any
+        ).revertedWith("ChromadinMarketplace: Token must be owned by Escrow");
       });
       it("reject purchase if insufficient funds", async () => {
         token
@@ -414,11 +432,13 @@ describe("ChromadinMarketplace", function () {
         );
         await chromadinDrop.createDrop([5, 6], "drop_uri_3");
 
-        await expect(
-          chromadinMarketplace
-            .connect(nonAdmin)
-            .buyTokens([29, 30, 40], token.address)
-        ).to.be.revertedWith("ChromadinMarketplace: Insufficient balance");
+        (
+          (await expect(
+            chromadinMarketplace
+              .connect(nonAdmin)
+              .buyTokens([29, 30, 40], token.address)
+          ).to.be) as any
+        ).revertedWith("ChromadinMarketplace: Insufficient balance");
       });
 
       it("reject purchase if insufficient approval", async () => {
@@ -478,20 +498,24 @@ describe("ChromadinMarketplace", function () {
         );
         await chromadinDrop.createDrop([5, 6], "drop_uri_3");
 
-        await expect(
-          chromadinMarketplace.connect(nonAdmin).buyTokens([29], token.address)
-        ).to.be.revertedWith(
-          "ChromadinMarketplace: Insufficient Approval Allowance"
-        );
+        (
+          (await expect(
+            chromadinMarketplace
+              .connect(nonAdmin)
+              .buyTokens([29], token.address)
+          ).to.be) as any
+        ).revertedWith("ChromadinMarketplace: Insufficient Approval Allowance");
       });
 
       it("reject purchase if token not approved / accepted for that nft + collection", async () => {
-        await expect(
-          chromadinMarketplace.buyTokens(
-            [13],
-            "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
-          )
-        ).to.be.revertedWith(
+        (
+          (await expect(
+            chromadinMarketplace.buyTokens(
+              [13],
+              "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619"
+            )
+          ).to.be) as any
+        ).revertedWith(
           "ChromadinMarketplace: Chosen token address is not an accepted token for the collection"
         );
       });

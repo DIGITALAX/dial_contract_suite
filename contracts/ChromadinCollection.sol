@@ -63,7 +63,7 @@ contract ChromadinCollection {
         address updater
     );
 
-    event CollectionBasePriceUpdated(
+    event CollectionBasePricesUpdated(
         uint256 indexed collectionId,
         uint256[] oldPrices,
         uint256[] newPrices,
@@ -445,7 +445,7 @@ contract ChromadinCollection {
         }
         uint256[] memory oldPrices = collections[_collectionId].basePrices;
         collections[_collectionId].basePrices = _newPrices;
-        emit CollectionBasePriceUpdated(
+        emit CollectionBasePricesUpdated(
             _collectionId,
             oldPrices,
             _newPrices,

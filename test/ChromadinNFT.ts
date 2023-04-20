@@ -103,8 +103,11 @@ describe("ChromadinNFT + ChromadinCollection", function () {
     collection_name: string,
     amount: number,
     acceptedTokens: string[],
-    tokenPrices: string[],
-    blockNumber: number;
+    blockNumber: number,
+    basePrices: string[],
+    stickerPrices: string[],
+    apparelPrices: string[],
+    posterPrices: string[];
   beforeEach("mint the collection", async () => {
     uri = "ipfs://newtoken";
     collection_name = "collection one";
@@ -114,10 +117,31 @@ describe("ChromadinNFT + ChromadinCollection", function () {
       "0x0000000000000000000000000000000000001010",
       "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
     ];
-    tokenPrices = [
+    basePrices = [
       "200000000000000000",
       "1200000000000000000",
       "200000000000000000",
+    ];
+    stickerPrices = [
+      "7000000000000000000",
+      "32000000000000000000",
+      "54000000000000000000",
+    ];
+    apparelPrices = [
+      "200000000000000000",
+      "1200000000000000000",
+      "200000000000000000",
+    ];
+    posterPrices = [
+      "7000000000000000000",
+      "32000000000000000000",
+      "54000000000000000000",
+      "7000000000000000000",
+      "32000000000000000000",
+      "54000000000000000000",
+      "7000000000000000000",
+      "32000000000000000000",
+      "54000000000000000000",
     ];
 
     tx = await chromadinCollection.mintCollection(
@@ -125,7 +149,10 @@ describe("ChromadinNFT + ChromadinCollection", function () {
       amount,
       collection_name,
       acceptedTokens,
-      tokenPrices
+      basePrices,
+      stickerPrices,
+      apparelPrices,
+      posterPrices
     );
 
     blockNumber = await ethers.provider.getBlockNumber();
@@ -215,7 +242,7 @@ describe("ChromadinNFT + ChromadinCollection", function () {
 
     it("accepted prices for all", async () => {
       for (let i = 1; i < amount; i++) {
-        expect(await chromadinNFT.getTokenPrices(i)).to.eql([
+        expect(await chromadinNFT.getBasePrices(i)).to.eql([
           BigNumber.from("200000000000000000"),
           BigNumber.from("1200000000000000000"),
           BigNumber.from("200000000000000000"),
@@ -246,7 +273,10 @@ describe("ChromadinNFT + ChromadinCollection", function () {
         15,
         collection_name,
         acceptedTokens,
-        tokenPrices
+        basePrices,
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
       blockNumber = await ethers.provider.getBlockNumber();
     });
@@ -307,7 +337,10 @@ describe("ChromadinNFT + ChromadinCollection", function () {
           3,
           admin.address,
           acceptedTokens,
-          tokenPrices
+          basePrices,
+          stickerPrices,
+          apparelPrices,
+          posterPrices
         )
       ).to.be.revertedWith(
         "ChromadinNFT: Only collection contract can mint tokens"
@@ -321,7 +354,10 @@ describe("ChromadinNFT + ChromadinCollection", function () {
           3,
           "coll_4",
           [token.address],
-          tokenPrices
+          basePrices,
+          stickerPrices,
+          apparelPrices,
+          posterPrices
         )
       ).to.be.revertedWith("ChromadinCollection: Invalid input");
     });
@@ -335,7 +371,10 @@ describe("ChromadinNFT + ChromadinCollection", function () {
         15,
         collection_name,
         acceptedTokens,
-        tokenPrices
+        basePrices,
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
 
       // add collection to a drop
@@ -351,7 +390,7 @@ describe("ChromadinNFT + ChromadinCollection", function () {
 
       await chromadinMarketplace
         .connect(nonAdmin)
-        .buyTokens([1, 2, 13], token.address, "fullfillment content");
+        .buyTokens([1, 2, 13], token.address);
     });
 
     it("it should burn a token as buyer / owner and emit event", async () => {
@@ -581,7 +620,10 @@ describe("ChromadinNFT + ChromadinCollection", function () {
           6,
           "collection_three",
           acceptedTokens,
-          tokenPrices
+          basePrices,
+          stickerPrices,
+          apparelPrices,
+          posterPrices
         );
     });
 
@@ -618,19 +660,153 @@ describe("ChromadinNFT + ChromadinCollection", function () {
     });
 
     it("set prices", async () => {
-      const old = await chromadinCollection.getCollectionPrices(2);
+      const old = await chromadinCollection.getCollectionBasePrices(2);
       expect(
         await chromadinCollection
           .connect(writer)
-          .setCollectionPrices(2, ["2000000"])
+          .setCollectionBasePrices(2, ["2000000"])
       )
-        .to.emit("CollectionPricesUpdated")
+        .to.emit("CollectionBasePricesUpdated")
         .withArgs(2, old, ["2000000"], writer.address);
-      expect(await chromadinCollection.getCollectionPrices(2)).to.deep.equal([
+      expect(
+        await chromadinCollection.getCollectionBasePrices(2)
+      ).to.deep.equal([BigNumber.from("2000000")]);
+      expect(await chromadinNFT.getBasePrices(13)).to.deep.eql([
         BigNumber.from("2000000"),
       ]);
-      expect(await chromadinNFT.getTokenPrices(13)).to.deep.eql([
-        BigNumber.from("2000000"),
+
+      const oldApparel = await chromadinCollection.getCollectionApparelPrices(
+        2
+      );
+      expect(
+        await chromadinCollection
+          .connect(writer)
+          .setCollectionApparelPrices(2, [
+            "200000000000000000",
+            "400000000000000000",
+            "1000000000000000",
+            "1000000000000000",
+          ])
+      )
+        .to.emit("CollectionApparelPricesUpdated")
+        .withArgs(
+          2,
+          oldApparel,
+          [
+            "200000000000000000",
+            "400000000000000000",
+            "1000000000000000",
+            "1000000000000000",
+          ],
+          writer.address
+        );
+      expect(
+        await chromadinCollection.getCollectionApparelPrices(2)
+      ).to.deep.equal([
+        BigNumber.from("200000000000000000"),
+        BigNumber.from("400000000000000000"),
+        BigNumber.from("1000000000000000"),
+        BigNumber.from("1000000000000000"),
+      ]);
+      expect(await chromadinNFT.getApparelPrices(13)).to.deep.eql([
+        BigNumber.from("200000000000000000"),
+        BigNumber.from("400000000000000000"),
+        BigNumber.from("1000000000000000"),
+        BigNumber.from("1000000000000000"),
+      ]);
+
+      const oldPosters = await chromadinCollection.getCollectionPosterPrices(2);
+      expect(
+        await chromadinCollection
+          .connect(writer)
+          .setCollectionPosterPrices(2, [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "8000000000000000000",
+            "32000000000000000000",
+            "14000000000000000000",
+            "1000000000000000000",
+            "32000000000000000000",
+            "24000000000000000000",
+          ])
+      )
+        .to.emit("CollectionPosterPricesUpdated")
+        .withArgs(
+          2,
+          oldPosters,
+          [
+            "7000000000000000000",
+            "32000000000000000000",
+            "54000000000000000000",
+            "8000000000000000000",
+            "32000000000000000000",
+            "14000000000000000000",
+            "1000000000000000000",
+            "32000000000000000000",
+            "24000000000000000000",
+          ],
+          writer.address
+        );
+      expect(
+        await chromadinCollection.getCollectionPosterPrices(2)
+      ).to.deep.equal([
+        BigNumber.from("7000000000000000000"),
+        BigNumber.from("32000000000000000000"),
+        BigNumber.from("54000000000000000000"),
+        BigNumber.from("8000000000000000000"),
+        BigNumber.from("32000000000000000000"),
+        BigNumber.from("14000000000000000000"),
+        BigNumber.from("1000000000000000000"),
+        BigNumber.from("32000000000000000000"),
+        BigNumber.from("24000000000000000000"),
+      ]);
+      expect(await chromadinNFT.getPosterPrices(13)).to.deep.eql([
+        BigNumber.from("7000000000000000000"),
+        BigNumber.from("32000000000000000000"),
+        BigNumber.from("54000000000000000000"),
+        BigNumber.from("8000000000000000000"),
+        BigNumber.from("32000000000000000000"),
+        BigNumber.from("14000000000000000000"),
+        BigNumber.from("1000000000000000000"),
+        BigNumber.from("32000000000000000000"),
+        BigNumber.from("24000000000000000000"),
+      ]);
+
+      const oldStickers = await chromadinCollection.getCollectionStickerPrices(
+        2
+      );
+      expect(
+        await chromadinCollection
+          .connect(writer)
+          .setCollectionStickerPrices(2, [
+            "1000000000000000000",
+            "30000000000000000000",
+            "59000000000000000000",
+          ])
+      )
+        .to.emit("CollectionStickerPricesUpdated")
+        .withArgs(
+          2,
+          oldStickers,
+          [
+            "1000000000000000000",
+            "30000000000000000000",
+            "59000000000000000000",
+          ],
+          writer.address
+        );
+      expect(
+        await chromadinCollection.getCollectionStickerPrices(2)
+      ).to.deep.equal([
+        BigNumber.from("1000000000000000000"),
+        BigNumber.from("30000000000000000000"),
+        BigNumber.from("59000000000000000000"),
+      ]);
+      expect(await chromadinNFT.getStickerPrices(13)).to.deep.eql([
+        BigNumber.from("1000000000000000000"),
+        BigNumber.from("30000000000000000000"),
+        BigNumber.from("59000000000000000000"),
       ]);
     });
 
@@ -665,7 +841,7 @@ describe("ChromadinNFT + ChromadinCollection", function () {
         "ChromadinCollection: Only the creator can edit this collection"
       );
       await expect(
-        chromadinCollection.setCollectionPrices(2, ["2000000"])
+        chromadinCollection.setCollectionBasePrices(2, ["2000000"])
       ).to.be.revertedWith(
         "ChromadinCollection: Only the creator can edit this collection"
       );
@@ -680,7 +856,22 @@ describe("ChromadinNFT + ChromadinCollection", function () {
         "ChromadinNFT: Only collection contract can mint tokens"
       );
       await expect(
-        chromadinNFT.setTokenPrices(13, ["2000000"])
+        chromadinNFT.setBasePrices(13, ["2000000"])
+      ).to.be.revertedWith(
+        "ChromadinNFT: Only collection contract can mint tokens"
+      );
+      await expect(
+        chromadinNFT.setApparelPrices(13, ["2000000", "40000", "50000"])
+      ).to.be.revertedWith(
+        "ChromadinNFT: Only collection contract can mint tokens"
+      );
+      await expect(
+        chromadinNFT.setPosterPrices(13, ["2000000", "40000", "50000"])
+      ).to.be.revertedWith(
+        "ChromadinNFT: Only collection contract can mint tokens"
+      );
+      await expect(
+        chromadinNFT.setStickerPrices(13, ["2000000", "40000", "50000"])
       ).to.be.revertedWith(
         "ChromadinNFT: Only collection contract can mint tokens"
       );
@@ -693,7 +884,10 @@ describe("ChromadinNFT + ChromadinCollection", function () {
         2,
         collection_name,
         [token.address],
-        ["100000"]
+        ["100000"],
+        stickerPrices,
+        apparelPrices,
+        posterPrices
       );
 
       // add collection to a drop
@@ -706,7 +900,7 @@ describe("ChromadinNFT + ChromadinCollection", function () {
 
       await chromadinMarketplace
         .connect(nonAdmin)
-        .buyTokens([18], token.address, "fullfillment content");
+        .buyTokens([18], token.address);
 
       await expect(
         chromadinCollection.setCollectionURI("new_token", 3)
@@ -724,7 +918,34 @@ describe("ChromadinNFT + ChromadinCollection", function () {
         "ChromadinCollection: The entire collection must be owned by Escrow to update"
       );
       await expect(
-        chromadinCollection.setCollectionPrices(3, ["2000000"])
+        chromadinCollection.setCollectionBasePrices(3, ["2000000"])
+      ).to.be.revertedWith(
+        "ChromadinCollection: The entire collection must be owned by Escrow to update"
+      );
+      await expect(
+        chromadinCollection.setCollectionApparelPrices(3, [
+          "2000000",
+          "40000",
+          "50000",
+        ])
+      ).to.be.revertedWith(
+        "ChromadinCollection: The entire collection must be owned by Escrow to update"
+      );
+      await expect(
+        chromadinCollection.setCollectionStickerPrices(3, [
+          "2000000",
+          "40000",
+          "50000",
+        ])
+      ).to.be.revertedWith(
+        "ChromadinCollection: The entire collection must be owned by Escrow to update"
+      );
+      await expect(
+        chromadinCollection.setCollectionPosterPrices(3, [
+          "2000000",
+          "40000",
+          "50000",
+        ])
       ).to.be.revertedWith(
         "ChromadinCollection: The entire collection must be owned by Escrow to update"
       );
