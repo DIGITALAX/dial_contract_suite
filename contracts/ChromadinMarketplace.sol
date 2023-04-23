@@ -47,7 +47,12 @@ contract ChromadinMarketplace {
         address indexed newChromadinEscrow,
         address updater
     );
-    event TokensBought(uint256[] tokenIds, uint256 totalPrice, address buyer);
+    event TokensBought(
+        uint256[] tokenIds,
+        uint256 totalPrice,
+        address buyer,
+        address chosenAddress
+    );
 
     constructor(
         address _collectionContract,
@@ -136,7 +141,12 @@ contract ChromadinMarketplace {
             );
         }
 
-        emit TokensBought(_tokenIds, totalPrice, msg.sender);
+        emit TokensBought(
+            _tokenIds,
+            totalPrice,
+            msg.sender,
+            _chosenTokenAddress
+        );
     }
 
     function updateAccessControl(
