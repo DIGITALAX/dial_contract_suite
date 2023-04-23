@@ -6,8 +6,8 @@ contract AccessControl {
     string public symbol;
     string public name;
 
-    mapping(address => bool) public admins;
-    mapping(address => bool) public writers;
+    mapping(address => bool) private admins;
+    mapping(address => bool) private writers;
 
     event AdminAdded(address indexed admin);
     event AdminRemoved(address indexed admin);

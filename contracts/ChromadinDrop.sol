@@ -20,8 +20,8 @@ contract ChromadinDrop {
         uint256 timestamp;
     }
 
-    mapping(uint256 => Drop) public drops;
-    mapping(uint256 => uint256) public collectionIdToDrop;
+    mapping(uint256 => Drop) private drops;
+    mapping(uint256 => uint256) private collectionIdToDrop;
 
     event DropCreated(
         uint256 indexed dropId,

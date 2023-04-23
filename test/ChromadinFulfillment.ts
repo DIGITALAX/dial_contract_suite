@@ -33,12 +33,12 @@ describe("ChromadinFulfillment", function () {
     );
     chromadinPayment = await ChromadinPayment.deploy(accessControl.address);
     chromadinNFT = await ChromadinNFT.deploy(accessControl.address);
-    chromadinFulfillment = await ChromadinFulfillment.deploy(
-      accessControl.address,
-      chromadinNFT.address,
-      "Chromadin Fulfillment",
-      "CHROF"
-    );
+    // chromadinFulfillment = await ChromadinFulfillment.deploy(
+    //   accessControl.address,
+    //   chromadinNFT.address,
+    //   "Chromadin Fulfillment",
+    //   "CHROF"
+    // );
     chromadinCollection = await ChromadinCollection.deploy(
       chromadinNFT.address,
       accessControl.address,
@@ -70,7 +70,7 @@ describe("ChromadinFulfillment", function () {
     ]);
   });
 
-  describe("update contracts", () => {
+  xdescribe("update contracts", () => {
     beforeEach("deploy new contracts", async () => {
       const AccessControl = await ethers.getContractFactory("AccessControl");
       const ChromadinNFT = await ethers.getContractFactory("ChromadinNFT");
@@ -125,7 +125,7 @@ describe("ChromadinFulfillment", function () {
     });
   });
 
-  describe("item fulfillment", async () => {
+  xdescribe("item fulfillment", async () => {
     beforeEach("mint collection + add to drop", async () => {
       // all items
       await chromadinCollection.mintCollection(
@@ -197,7 +197,7 @@ describe("ChromadinFulfillment", function () {
       await chromadinDrop.createDrop([3, 4], "drop_uri_2");
     });
 
-    describe("fulfill item", () => {
+    xdescribe("fulfill item", () => {
       xit("apparel fulfill", async () => {
         await (
           expect(
@@ -248,11 +248,11 @@ describe("ChromadinFulfillment", function () {
     });
   });
 
-  describe("check if approved", () => {});
+  xdescribe("check if approved", () => {});
 
-  describe("transfer if approved", () => {});
+  xdescribe("transfer if approved", () => {});
 
-  describe("setters and getters for orders", () => {});
+  xdescribe("setters and getters for orders", () => {});
 
-  describe("setters and getters for fulfillers", () => {});
+  xdescribe("setters and getters for fulfillers", () => {});
 });

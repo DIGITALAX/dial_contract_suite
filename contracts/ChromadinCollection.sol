@@ -21,9 +21,6 @@ contract ChromadinCollection {
     struct Collection {
         uint256 collectionId;
         address[] acceptedTokens;
-        uint256[] apparelPrices;
-        uint256[] posterPrices;
-        uint256[] stickerPrices;
         uint256[] basePrices;
         uint256[] tokenIds;
         uint256 amount;
@@ -32,9 +29,10 @@ contract ChromadinCollection {
         string uri;
         bool isBurned;
         uint256 timestamp;
+        bool fulfillment;
     }
 
-    mapping(uint256 => Collection) public collections;
+    mapping(uint256 => Collection) private collections;
 
     event CollectionMinted(
         uint256 indexed collectionId,
@@ -67,27 +65,6 @@ contract ChromadinCollection {
         uint256 indexed collectionId,
         uint256[] oldPrices,
         uint256[] newPrices,
-        address updater
-    );
-
-    event CollectionApparelPricesUpdated(
-        uint256 indexed collectionId,
-        uint256[] oldApparelPrices,
-        uint256[] newApparelPrices,
-        address updater
-    );
-
-    event CollectionStickerPricesUpdated(
-        uint256 indexed collectionId,
-        uint256[] oldStickerPrices,
-        uint256[] newStickerPrices,
-        address updater
-    );
-
-    event CollectionPosterPricesUpdated(
-        uint256 indexed collectionId,
-        uint256[] oldPosterPrices,
-        uint256[] newPosterPrices,
         address updater
     );
 
@@ -128,6 +105,11 @@ contract ChromadinCollection {
         address updater
     );
 
+    event CollectionFulfillmentUpdated(
+        uint256 indexed collectionId,
+        address updater
+    );
+
     modifier onlyCreator(uint256 _collectionId) {
         require(
             msg.sender == collections[_collectionId].creator,
@@ -164,10 +146,7 @@ contract ChromadinCollection {
         uint256 _amount,
         string memory _collectionName,
         address[] memory _acceptedTokens,
-        uint256[] memory _basePrices,
-        uint256[] memory _stickerPrices,
-        uint256[] memory _apparelPrices,
-        uint256[] memory _posterPrices
+        uint256[] memory _basePrices
     ) external {
         require(
             _basePrices.length == _acceptedTokens.length,
@@ -180,7 +159,7 @@ contract ChromadinCollection {
         );
         for (uint256 i = 0; i < _acceptedTokens.length; i++) {
             require(
-                chromadinPayment.isVerifiedPaymentToken(_acceptedTokens[i]),
+                chromadinPayment.checkIfAddressVerified(_acceptedTokens[i]),
                 "ChromadinCollection: Payment Token is Not Verified"
             );
         }
@@ -196,9 +175,6 @@ contract ChromadinCollection {
         Collection memory newCollection = Collection({
             collectionId: collectionSupply,
             acceptedTokens: _acceptedTokens,
-            apparelPrices: _apparelPrices,
-            posterPrices: _posterPrices,
-            stickerPrices: _stickerPrices,
             basePrices: _basePrices,
             tokenIds: tokenIds,
             amount: _amount,
@@ -206,7 +182,8 @@ contract ChromadinCollection {
             name: _collectionName,
             uri: _uri,
             isBurned: false,
-            timestamp: block.timestamp
+            timestamp: block.timestamp,
+            fulfillment: false
         });
 
         collections[collectionSupply] = newCollection;
@@ -217,10 +194,7 @@ contract ChromadinCollection {
             collectionSupply,
             msg.sender,
             _acceptedTokens,
-            _basePrices,
-            _posterPrices,
-            _apparelPrices,
-            _stickerPrices
+            _basePrices
         );
 
         emit CollectionMinted(
@@ -351,22 +325,10 @@ contract ChromadinCollection {
         return collections[_collectionId].basePrices;
     }
 
-    function getCollectionApparelPrices(
+    function getCollectionFulfillment(
         uint256 _collectionId
-    ) public view returns (uint256[] memory) {
-        return collections[_collectionId].apparelPrices;
-    }
-
-    function getCollectionStickerPrices(
-        uint256 _collectionId
-    ) public view returns (uint256[] memory) {
-        return collections[_collectionId].stickerPrices;
-    }
-
-    function getCollectionPosterPrices(
-        uint256 _collectionId
-    ) public view returns (uint256[] memory) {
-        return collections[_collectionId].posterPrices;
+    ) public view returns (bool) {
+        return collections[_collectionId].fulfillment;
     }
 
     function getCollectionName(
@@ -453,73 +415,15 @@ contract ChromadinCollection {
         );
     }
 
-    function setCollectionStickerPrices(
-        uint256 _collectionId,
-        uint256[] memory _newStickerPrices
+    function setCollectionFulfillment(
+        uint256 _collectionId
     ) external onlyCreator(_collectionId) {
         uint256[] memory tokenIds = collections[_collectionId].tokenIds;
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            require(
-                chromadinNFT.ownerOf(tokenIds[i]) == address(chromadinEscrow),
-                "ChromadinCollection: The entire collection must be owned by Escrow to update"
-            );
-            chromadinNFT.setStickerPrices(tokenIds[i], _newStickerPrices);
+            chromadinNFT.setTokenFulfilled(tokenIds[i]);
         }
-        uint256[] memory oldStickerPrices = collections[_collectionId]
-            .stickerPrices;
-        collections[_collectionId].stickerPrices = _newStickerPrices;
-        emit CollectionStickerPricesUpdated(
-            _collectionId,
-            oldStickerPrices,
-            _newStickerPrices,
-            msg.sender
-        );
-    }
-
-    function setCollectionApparelPrices(
-        uint256 _collectionId,
-        uint256[] memory _newApparelPrices
-    ) external onlyCreator(_collectionId) {
-        uint256[] memory tokenIds = collections[_collectionId].tokenIds;
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            require(
-                chromadinNFT.ownerOf(tokenIds[i]) == address(chromadinEscrow),
-                "ChromadinCollection: The entire collection must be owned by Escrow to update"
-            );
-            chromadinNFT.setApparelPrices(tokenIds[i], _newApparelPrices);
-        }
-        uint256[] memory oldApparelPrices = collections[_collectionId]
-            .apparelPrices;
-        collections[_collectionId].apparelPrices = _newApparelPrices;
-        emit CollectionApparelPricesUpdated(
-            _collectionId,
-            oldApparelPrices,
-            _newApparelPrices,
-            msg.sender
-        );
-    }
-
-    function setCollectionPosterPrices(
-        uint256 _collectionId,
-        uint256[] memory _newPosterPrices
-    ) external onlyCreator(_collectionId) {
-        uint256[] memory tokenIds = collections[_collectionId].tokenIds;
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            require(
-                chromadinNFT.ownerOf(tokenIds[i]) == address(chromadinEscrow),
-                "ChromadinCollection: The entire collection must be owned by Escrow to update"
-            );
-            chromadinNFT.setPosterPrices(tokenIds[i], _newPosterPrices);
-        }
-        uint256[] memory oldPosterPrices = collections[_collectionId]
-            .posterPrices;
-        collections[_collectionId].posterPrices = _newPosterPrices;
-        emit CollectionApparelPricesUpdated(
-            _collectionId,
-            oldPosterPrices,
-            _newPosterPrices,
-            msg.sender
-        );
+        collections[_collectionId].fulfillment = true;
+        emit CollectionFulfillmentUpdated(_collectionId, msg.sender);
     }
 
     function setCollectionAcceptedTokens(

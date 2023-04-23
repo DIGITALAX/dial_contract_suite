@@ -9,9 +9,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract ChromadinFulfillment {
     ChromadinNFT public chromadinNFT;
     AccessControl public accessControl;
+    ChromadinCollection public chromadinCollection;
     uint256 public orderSupply;
     string public symbol;
     string public name;
+    uint256[] public fulfillmentOracle;
 
     struct Order {
         uint256 orderId;
@@ -32,8 +34,15 @@ contract ChromadinFulfillment {
         address fulfillerAddress;
     }
 
-    mapping(uint256 => Order) public orders;
-    mapping(uint256 => Fulfiller) public fulfillers;
+    struct FulfillmentPrices {
+        uint256[] apparelPrices;
+        uint256[] stickerPrices;
+        uint256[] posterPrices;
+    }
+
+    mapping(uint256 => Order) private orders;
+    mapping(uint256 => Fulfiller) private fulfillers;
+    mapping(uint256 => FulfillmentPrices) private fulfillToCollection;
 
     event AccessControlUpdated(
         address indexed oldAccessControl,
@@ -44,6 +53,12 @@ contract ChromadinFulfillment {
     event ChromadinNFTUpdated(
         address indexed oldChromadinNFT,
         address indexed newChromadinNFT,
+        address updater
+    );
+
+    event ChromadinCollectionUpdated(
+        address indexed oldChromadinCollection,
+        address indexed newChromadinCollection,
         address updater
     );
 
@@ -63,6 +78,27 @@ contract ChromadinFulfillment {
         uint256 newFulfillerPercent
     );
 
+    event CollectionApparelPricesUpdated(
+        uint256 indexed collectionId,
+        uint256[] oldApparelPrices,
+        uint256[] newApparelPrices,
+        address updater
+    );
+
+    event CollectionStickerPricesUpdated(
+        uint256 indexed collectionId,
+        uint256[] oldStickerPrices,
+        uint256[] newStickerPrices,
+        address updater
+    );
+
+    event CollectionPosterPricesUpdated(
+        uint256 indexed collectionId,
+        uint256[] oldPosterPrices,
+        uint256[] newPosterPrices,
+        address updater
+    );
+
     modifier onlyAdmin() {
         require(
             accessControl.isAdmin(msg.sender),
@@ -79,14 +115,25 @@ contract ChromadinFulfillment {
         _;
     }
 
+    modifier onlyCreator(uint256 _collectionId) {
+        require(
+            msg.sender ==
+                chromadinCollection.getCollectionCreator(_collectionId),
+            "ChromadinCollection: Only the creator can edit this collection"
+        );
+        _;
+    }
+
     constructor(
         address _accessControlContract,
         address _NFTContract,
+        address _collectionContract,
         string memory _symbol,
         string memory _name
     ) {
         accessControl = AccessControl(_accessControlContract);
         chromadinNFT = ChromadinNFT(_NFTContract);
+        chromadinCollection = ChromadinCollection(_collectionContract);
         orderSupply = 0;
         symbol = _symbol;
         name = _name;
@@ -101,6 +148,11 @@ contract ChromadinFulfillment {
         string memory _uri,
         uint256 _fulfillerId
     ) external ownNFT(_tokenId) {
+        require(
+            chromadinNFT.getTokenFulfilled(_tokenId),
+            "ChromadinFulfillment: Token is not set for fulfillment"
+        );
+
         address[] memory acceptedTokens = chromadinNFT.getTokenAcceptedTokens(
             _tokenId
         );
@@ -193,18 +245,20 @@ contract ChromadinFulfillment {
         );
     }
 
+    // set for oracles
+    function setFulfillmentOracle() public onlyAdmin {}
+
+    // set for oracles
     function calculateTotalPrice(
         uint256[] memory _apparelItems,
         uint256[] memory _stickerItems,
         uint256[] memory _posterItems,
-        uint256 _tokenId
+        uint256 _collectionId
     ) internal view returns (uint256) {
         uint256 totalPrice = 0;
 
         if (_apparelItems.length > 0) {
-            uint256[] memory apparelPrices = chromadinNFT.getApparelPrices(
-                _tokenId
-            );
+            uint256[] memory apparelPrices = getApparelPrices(_collectionId);
 
             for (uint256 i = 0; i < _apparelItems.length; i++) {
                 totalPrice += apparelPrices[_apparelItems[i]];
@@ -212,24 +266,37 @@ contract ChromadinFulfillment {
         }
 
         if (_stickerItems.length > 0) {
-            uint256[] memory stickerPrices = chromadinNFT.getStickerPrices(
-                _tokenId
-            );
+            uint256[] memory stickerPrices = getStickerPrices(_collectionId);
             for (uint256 i = 0; i < _stickerItems.length; i++) {
                 totalPrice += stickerPrices[_stickerItems[i]];
             }
         }
 
         if (_posterItems.length > 0) {
-            uint256[] memory posterPrices = chromadinNFT.getPosterPrices(
-                _tokenId
-            );
+            uint256[] memory posterPrices = getPosterPrices(_collectionId);
             for (uint256 i = 0; i < _posterItems.length; i++) {
                 totalPrice += posterPrices[_posterItems[i]];
             }
         }
 
         return totalPrice;
+    }
+
+    function addFulfillmentToCollection(
+        uint256 _collectionId,
+        uint256[] memory _apparelPrices,
+        uint256[] memory _stickerPrices,
+        uint256[] memory _posterPrices
+    ) external onlyCreator(_collectionId) {
+        FulfillmentPrices memory newFulfillmentPrices = FulfillmentPrices({
+            apparelPrices: _apparelPrices,
+            stickerPrices: _stickerPrices,
+            posterPrices: _posterPrices
+        });
+
+        fulfillToCollection[_collectionId] = newFulfillmentPrices;
+
+        chromadinCollection.setCollectionFulfillment(_collectionId);
     }
 
     function updateChromadinNFT(
@@ -252,6 +319,20 @@ contract ChromadinFulfillment {
         emit AccessControlUpdated(
             oldAddress,
             _newAccessControlAddress,
+            msg.sender
+        );
+    }
+
+    function updateChromadinCollection(
+        address _newChromadinCollectionAddress
+    ) external onlyAdmin {
+        address oldAddress = address(chromadinCollection);
+        chromadinCollection = ChromadinCollection(
+            _newChromadinCollectionAddress
+        );
+        emit ChromadinCollectionUpdated(
+            oldAddress,
+            _newChromadinCollectionAddress,
             msg.sender
         );
     }
@@ -326,5 +407,68 @@ contract ChromadinFulfillment {
         uint256 _orderId
     ) public view returns (uint256) {
         return orders[_orderId].fulfillerId;
+    }
+
+    function getStickerPrices(
+        uint256 _collectionId
+    ) public view returns (uint256[] memory) {
+        return fulfillToCollection[_collectionId].stickerPrices;
+    }
+
+    function getApparelPrices(
+        uint256 _collectionId
+    ) public view returns (uint256[] memory) {
+        return fulfillToCollection[_collectionId].apparelPrices;
+    }
+
+    function getPosterPrices(
+        uint256 _collectionId
+    ) public view returns (uint256[] memory) {
+        return fulfillToCollection[_collectionId].posterPrices;
+    }
+
+    function setStickerPrices(
+        uint256 _collectionId,
+        uint256[] memory _newStickerPrices
+    ) public onlyCreator(_collectionId) {
+        uint256[] memory oldStickerPrices = fulfillToCollection[_collectionId]
+            .stickerPrices;
+        fulfillToCollection[_collectionId].stickerPrices = _newStickerPrices;
+        emit CollectionStickerPricesUpdated(
+            _collectionId,
+            oldStickerPrices,
+            _newStickerPrices,
+            msg.sender
+        );
+    }
+
+    function setApparelPrices(
+        uint256 _collectionId,
+        uint256[] memory _newApparelPrices
+    ) public onlyCreator(_collectionId) {
+        uint256[] memory oldApparelPrices = fulfillToCollection[_collectionId]
+            .apparelPrices;
+        fulfillToCollection[_collectionId].apparelPrices = _newApparelPrices;
+        emit CollectionApparelPricesUpdated(
+            _collectionId,
+            oldApparelPrices,
+            _newApparelPrices,
+            msg.sender
+        );
+    }
+
+    function setPosterPrices(
+        uint256 _collectionId,
+        uint256[] memory _newPosterPrices
+    ) public onlyCreator(_collectionId) {
+        uint256[] memory oldPosterPrices = fulfillToCollection[_collectionId]
+            .posterPrices;
+        fulfillToCollection[_collectionId].posterPrices = _newPosterPrices;
+        emit CollectionPosterPricesUpdated(
+            _collectionId,
+            oldPosterPrices,
+            _newPosterPrices,
+            msg.sender
+        );
     }
 }

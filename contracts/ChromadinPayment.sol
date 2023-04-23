@@ -9,9 +9,9 @@ contract ChromadinPayment {
     AccessControl public accessControl;
     address[] public verifiedPaymentTokens;
 
-    mapping(address => bool) public isVerifiedPaymentToken;
+    mapping(address => bool) private isVerifiedPaymentToken;
 
-    modifier onlyAdmin {
+    modifier onlyAdmin() {
         require(
             accessControl.isAdmin(msg.sender),
             "AccessControl: Only admin can perform this action"
@@ -32,7 +32,6 @@ contract ChromadinPayment {
     function setVerifiedPaymentTokens(
         address[] memory _paymentTokens
     ) public onlyAdmin {
-
         for (uint256 i = 0; i < verifiedPaymentTokens.length; i++) {
             isVerifiedPaymentToken[verifiedPaymentTokens[i]] = false;
         }
@@ -44,11 +43,7 @@ contract ChromadinPayment {
         }
     }
 
-    function getVerifiedPaymentTokens()
-        public
-        view
-        returns (address[] memory)
-    {
+    function getVerifiedPaymentTokens() public view returns (address[] memory) {
         return verifiedPaymentTokens;
     }
 
@@ -62,5 +57,11 @@ contract ChromadinPayment {
             _newAccessControlAddress,
             msg.sender
         );
+    }
+
+    function checkIfAddressVerified(
+        address _address
+    ) public view returns (bool) {
+        return isVerifiedPaymentToken[_address];
     }
 }
