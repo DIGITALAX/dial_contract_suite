@@ -12,6 +12,7 @@ describe("ChromadinMarketplace", function () {
     chromadinPayment: any,
     admin: any,
     nonAdmin: any,
+    token2: any,
     token: any;
 
   beforeEach(async () => {
@@ -88,12 +89,16 @@ describe("ChromadinMarketplace", function () {
     token = await ERC20.deploy();
     await token.deployed();
     await token.transfer(nonAdmin.address, ethers.utils.parseEther("60"));
+    token2 = await ERC20.deploy();
+    await token2.deployed();
+    await token2.transfer(nonAdmin.address, ethers.utils.parseEther("60"));
 
     // verify payment tokens
     chromadinPayment.setVerifiedPaymentTokens([
       token.address,
       "0x0000000000000000000000000000000000001010",
       "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+      token2.address,
     ]);
   });
 
@@ -268,6 +273,51 @@ describe("ChromadinMarketplace", function () {
         ["20000"]
       );
       await chromadinDrop.createDrop([3, 4], "drop_uri_2");
+
+      // mint with token2
+      await chromadinCollection.mintCollection(
+        "uri5",
+        4,
+        "col 5",
+        [token.address, token2.address],
+        ["50000000000000000000", "50000000000000000000"]
+      );
+      await chromadinDrop.createDrop([5], "drop_uri_3");
+    });
+
+    describe("buy second token address", async () => {
+      beforeEach("approve", async () => {
+        token2
+          .connect(nonAdmin)
+          .approve(
+            chromadinMarketplace.address,
+            BigNumber.from("50000000000000000000")
+          );
+      });
+
+      it("purchases with correct second token", async () => {
+        (
+          expect(
+            await chromadinMarketplace
+              .connect(nonAdmin)
+              .buyTokens([30], token2.address)
+          ).to as any
+        )
+          .emit("TokensBought")
+          .withArgs([30], "50000000000000000000", nonAdmin.address);
+      });
+
+      it("sends correct second funds to creator", async () => {
+        const balanceBefore = await token2.balanceOf(admin.address);
+        await chromadinMarketplace
+          .connect(nonAdmin)
+          .buyTokens([31], token2.address);
+        const expectedBalance = balanceBefore.add(
+          BigNumber.from("50000000000000000000")
+        );
+
+        expect(await token2.balanceOf(admin.address)).to.equal(expectedBalance);
+      });
     });
 
     describe("buy token", () => {
@@ -279,17 +329,15 @@ describe("ChromadinMarketplace", function () {
             BigNumber.from("50000000000000000000")
           );
       });
+
       it("sends funds to creator", async () => {
-        const total = "1400000";
-        const balanceBefore = await ethers.provider.getBalance(admin.address);
+        const balanceBefore = await token.balanceOf(admin.address);
         await chromadinMarketplace
           .connect(nonAdmin)
           .buyTokens([1, 5, 10, 11, 27, 26, 22], token.address);
-        const expectedBalance = balanceBefore.add(BigNumber.from(total));
+        const expectedBalance = balanceBefore.add(BigNumber.from("140000"));
 
-        expect(await ethers.provider.getBalance(admin.address)).to.equal(
-          expectedBalance
-        );
+        expect(await token.balanceOf(admin.address)).to.equal(expectedBalance);
       });
       it("purchase one token", async () => {
         (
@@ -300,7 +348,7 @@ describe("ChromadinMarketplace", function () {
           ).to as any
         )
           .emit("TokensBought")
-          .withArgs([1], "20000", nonAdmin.address);
+          .withArgs([6], "20000", nonAdmin.address);
       });
       it("purchase multiple tokens", async () => {
         (
@@ -311,7 +359,7 @@ describe("ChromadinMarketplace", function () {
           ).to as any
         )
           .emit("TokensBought")
-          .withArgs([1, 5, 10, 11, 27, 26, 22], "1400000", nonAdmin.address);
+          .withArgs([1, 5, 10, 11, 27, 26, 22], "140000", nonAdmin.address);
       });
 
       it("reject purchase if not approved", async () => {
@@ -343,21 +391,21 @@ describe("ChromadinMarketplace", function () {
             chromadinMarketplace.address,
             BigNumber.from("200000000000000000000")
           );
-        await chromadinCollection.mintCollection(
-          "uri1",
-          10,
-          "col 1",
-          [token.address],
-          ["50000000000000000000"]
-        );
-        await chromadinCollection.mintCollection(
-          "uri2",
-          10,
-          "col 2",
-          [token.address],
-          ["50000000000000000000"]
-        );
-        await chromadinDrop.createDrop([5, 6], "drop_uri_3");
+        // await chromadinCollection.mintCollection(
+        //   "uri1",
+        //   10,
+        //   "col 1",
+        //   [token.address],
+        //   ["50000000000000000000"]
+        // );
+        // await chromadinCollection.mintCollection(
+        //   "uri2",
+        //   10,
+        //   "col 2",
+        //   [token.address],
+        //   ["50000000000000000000"]
+        // );
+        // await chromadinDrop.createDrop([5, 6], "drop_uri_3");
 
         (
           (await expect(
@@ -375,21 +423,21 @@ describe("ChromadinMarketplace", function () {
             chromadinMarketplace.address,
             BigNumber.from("40000000000000000000")
           );
-        await chromadinCollection.mintCollection(
-          "uri1",
-          10,
-          "col 1",
-          [token.address],
-          ["50000000000000000000"]
-        );
-        await chromadinCollection.mintCollection(
-          "uri2",
-          10,
-          "col 2",
-          [token.address],
-          ["50000000000000000000"]
-        );
-        await chromadinDrop.createDrop([5, 6], "drop_uri_3");
+        // await chromadinCollection.mintCollection(
+        //   "uri1",
+        //   10,
+        //   "col 1",
+        //   [token.address],
+        //   ["50000000000000000000"]
+        // );
+        // await chromadinCollection.mintCollection(
+        //   "uri2",
+        //   10,
+        //   "col 2",
+        //   [token.address],
+        //   ["50000000000000000000"]
+        // );
+        // await chromadinDrop.createDrop([5, 6], "drop_uri_3");
 
         (
           (await expect(
