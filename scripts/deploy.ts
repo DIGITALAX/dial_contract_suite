@@ -10,9 +10,16 @@ const main = async () => {
     // const theDialWhitelist = await TheDialWhitelist.deploy(
     //   accessControl.address
     // );
+    // const Sampler = await ethers.getContractFactory("Sampler");
+    // const sampler = await Sampler.deploy(
+    //   "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+    //   "SAMP",
+    //   "SAMPLER"
+    // );
     // const test = await ethers.getContractFactory("TestToken");
     // const testToken = await test.deploy();
-    // const WAIT_BLOCK_CONFIRMATIONS = 20;
+    const WAIT_BLOCK_CONFIRMATIONS = 20;
+    // sampler.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
     // accessControl.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
     // theDialWhitelist.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
     // testToken.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
@@ -21,6 +28,7 @@ const main = async () => {
     // console.log(
     //   `Access Control Contract deployed at\n${accessControl.address}`
     // );
+    // console.log(`Sampler Contract deployed at\n${sampler.address}`);
     // const ChromadinPayment = await ethers.getContractFactory(
     //   "ChromadinPayment"
     // );
@@ -38,33 +46,33 @@ const main = async () => {
     //   accessControl.address
     // );
     // const chromadinNFT = await ChromadinNFT.deploy(
-    //   "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55"
+    //   "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD"
     // );
     // const chromadinCollection = await ChromadinCollection.deploy(
     //   chromadinNFT.address,
-    //   "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-    //   "0xA75fcf895b35EE1871E088b8a737A0Fb7245bA62",
+    //   "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+    //   "0x072CE22Df013E72A7936a6738E694AE0a4221Ac9",
     //   "Chromadin Collection",
     //   "CHROC"
     // );
     // const chromadinMarketplace = await ChromadinMarketplace.deploy(
-    //   "0x835eE8bb8be27f0749B3e2EB9DD7D6a663aa7079",
-    //   "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-    //   "0xF66259f32347a23F36256393b448071eD783F873",
+    //   "0x1809BD0f0Ecf31D59f055A8bA5727BCF5B01f9De",
+    //   "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+    //   "0xf635Ba5A7Bfc5061F6DFffE8947c53956151A309",
     //   "Chromadin Marketplace",
     //   "CHROM"
     // );
     // const chromadinDrop = await ChromadinDrop.deploy(
-    //   "0x835eE8bb8be27f0749B3e2EB9DD7D6a663aa7079",
-    //   "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
+    //   "0x1809BD0f0Ecf31D59f055A8bA5727BCF5B01f9De",
+    //   "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
     //   "Chromadin Drop",
     //   "CHROD"
     // );
     // const chromadinEscrow = await ChromadinEscrow.deploy(
-    //   "0x835eE8bb8be27f0749B3e2EB9DD7D6a663aa7079",
-    //   "0xA25A094c4Dab3c8985d2B2e5BfcD221CCd81f809",
-    //   "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-    //   "0xF66259f32347a23F36256393b448071eD783F873",
+    //   "0x1809BD0f0Ecf31D59f055A8bA5727BCF5B01f9De",
+    //   "0x641cf3F4Cfe8934fB40A7706CcB94fca22e99635",
+    //   "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+    //   "0xf635Ba5A7Bfc5061F6DFffE8947c53956151A309",
     //   "Chromadin Escrow",
     //   "CHROE"
     // );
@@ -90,12 +98,12 @@ const main = async () => {
     // console.log(
     //   `Chromadin Escrow Contract deployed at\n${chromadinEscrow.address}`
     // );
-      await run(`verify:verify`, {
-      address: "0x6199A505ec1707695Ce49b59A07A147f2d50f22D",
-      contract: "contracts/TestToken.sol:TestToken"
-    });
+    //   await run(`verify:verify`, {
+    //   address: "0x6199A505ec1707695Ce49b59A07A147f2d50f22D",
+    //   contract: "contracts/TestToken.sol:TestToken"
+    // });
     // await run(`verify:verify`, {
-    //   address: "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
+    //   address: "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
     //   constructorArguments: ["AccessControl", "CHROA"],
     // });
     // await run(`verify:verify`, {
@@ -103,53 +111,61 @@ const main = async () => {
     //   constructorArguments: ["0x50Aa3895a35087d7cfa81fb347875849083225AE"],
     // });
     // await run(`verify:verify`, {
-    //   address: "0xA75fcf895b35EE1871E088b8a737A0Fb7245bA62",
-    //   constructorArguments: ["0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55"],
+    //   address: "0x072CE22Df013E72A7936a6738E694AE0a4221Ac9",
+    //   constructorArguments: ["0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD"],
     // });
     // await run(`verify:verify`, {
-    //   address: "0xF66259f32347a23F36256393b448071eD783F873",
-    //   constructorArguments: ["0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55"],
+    //   address: "0xf635Ba5A7Bfc5061F6DFffE8947c53956151A309",
+    //   constructorArguments: ["0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD"],
     // });
     // await run(`verify:verify`, {
     //   address: "0x835eE8bb8be27f0749B3e2EB9DD7D6a663aa7079",
     //   constructorArguments: [
-    //     "0xF66259f32347a23F36256393b448071eD783F873",
-    //     "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-    //     "0xA75fcf895b35EE1871E088b8a737A0Fb7245bA62",
+    //     "0xf635Ba5A7Bfc5061F6DFffE8947c53956151A309",
+    //     "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+    //     "0x072CE22Df013E72A7936a6738E694AE0a4221Ac9",
     //     "Chromadin Collection",
     //     "CHROC",
     //   ],
     // });
     // await run(`verify:verify`, {
-    //   address: "0xA25A094c4Dab3c8985d2B2e5BfcD221CCd81f809",
+    //   address: "0x641cf3F4Cfe8934fB40A7706CcB94fca22e99635",
     //   constructorArguments: [
-    //     "0x835eE8bb8be27f0749B3e2EB9DD7D6a663aa7079",
-    //     "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-    //     "0xF66259f32347a23F36256393b448071eD783F873",
+    //     "0x1809BD0f0Ecf31D59f055A8bA5727BCF5B01f9De",
+    //     "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+    //     "0xf635Ba5A7Bfc5061F6DFffE8947c53956151A309",
     //     "Chromadin Marketplace",
-    //     "CHROM",
+    //     "CHROM"
     //   ],
     // });
     // await run(`verify:verify`, {
-    //   address: "0x1669673e7080ef47e7d5c781b5da99eb2D46F190",
+    //   address: "0xCF543C5Dd43c51e1015621Bc7Aac2eBBC9093b50",
     //   constructorArguments: [
-    //     "0x835eE8bb8be27f0749B3e2EB9DD7D6a663aa7079",
-    //     "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
+    //     "0x1809BD0f0Ecf31D59f055A8bA5727BCF5B01f9De",
+    //     "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
     //     "Chromadin Drop",
-    //     "CHROD",
+    //     "CHROD"
     //   ],
     // });
     // await run(`verify:verify`, {
-    //   address: "0x58d242c41518242FCb622EEC12371E7f9E507FC6",
+    //   address: "0x3183d36DC497BE8d03f77eAb29e79F435782ea5e",
     //   constructorArguments: [
-    //     "0x835eE8bb8be27f0749B3e2EB9DD7D6a663aa7079",
-    //     "0xA25A094c4Dab3c8985d2B2e5BfcD221CCd81f809",
-    //     "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-    //     "0xF66259f32347a23F36256393b448071eD783F873",
+    //     "0x1809BD0f0Ecf31D59f055A8bA5727BCF5B01f9De",
+    //     "0x641cf3F4Cfe8934fB40A7706CcB94fca22e99635",
+    //     "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+    //     "0xf635Ba5A7Bfc5061F6DFffE8947c53956151A309",
     //     "Chromadin Escrow",
     //     "CHROE",
     //   ],
     // });
+    await run(`verify:verify`, {
+      address: "0x948ed9CD14Ce2B60Cee4bca0BCe1a65B95BD34d2",
+      constructorArguments: [
+        "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+        "SAMP",
+        "SAMPLER",
+      ],
+    });
   } catch (err: any) {
     console.error(err.message);
   }
