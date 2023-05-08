@@ -97,9 +97,7 @@ contract ChromadinNFT is ERC721Enumerable {
         _;
     }
 
-    constructor(
-        address _accessControlAddress
-    ) ERC721("ChromadinNFT", "CHRON") {
+    constructor(address _accessControlAddress) ERC721("ChromadinNFT", "CHRON") {
         accessControl = AccessControl(_accessControlAddress);
         totalSupplyCount = 0;
     }
@@ -112,9 +110,9 @@ contract ChromadinNFT is ERC721Enumerable {
         address[] memory _acceptedTokens,
         uint256[] memory _basePrices
     ) public onlyCollectionContract {
-        totalSupplyCount += 1;
         uint256[] memory tokenIds = new uint256[](_amount);
         for (uint256 i = 0; i < _amount; i++) {
+            totalSupplyCount += 1;
             Token memory newToken = Token({
                 tokenId: totalSupplyCount,
                 collectionId: _collectionId,
