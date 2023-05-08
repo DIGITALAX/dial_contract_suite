@@ -12,6 +12,7 @@ contract ChromadinNFT is ERC721Enumerable {
     AccessControl public accessControl;
     ChromadinEscrow public chromadinEscrow;
     ChromadinCollection public chromadinCollection;
+    uint256 public totalSupplyCount;
 
     struct Token {
         uint256 tokenId;
@@ -98,8 +99,9 @@ contract ChromadinNFT is ERC721Enumerable {
 
     constructor(
         address _accessControlAddress
-    ) ERC721("ChromadinNFTNFT", "CHRON") {
+    ) ERC721("ChromadinNFT", "CHRON") {
         accessControl = AccessControl(_accessControlAddress);
+        totalSupplyCount = 0;
     }
 
     function mintBatch(
@@ -110,10 +112,11 @@ contract ChromadinNFT is ERC721Enumerable {
         address[] memory _acceptedTokens,
         uint256[] memory _basePrices
     ) public onlyCollectionContract {
+        totalSupplyCount += 1;
         uint256[] memory tokenIds = new uint256[](_amount);
         for (uint256 i = 0; i < _amount; i++) {
             Token memory newToken = Token({
-                tokenId: super.totalSupply() + 1,
+                tokenId: totalSupplyCount,
                 collectionId: _collectionId,
                 acceptedTokens: _acceptedTokens,
                 basePrices: _basePrices,
@@ -124,10 +127,10 @@ contract ChromadinNFT is ERC721Enumerable {
                 fulfillment: false
             });
 
-            tokens[super.totalSupply() + 1] = newToken;
-            tokenIds[i] = super.totalSupply() + 1;
-            _safeMint(address(chromadinEscrow), super.totalSupply() + 1);
-            chromadinEscrow.deposit(super.totalSupply(), true);
+            tokens[totalSupplyCount] = newToken;
+            tokenIds[i] = totalSupplyCount;
+            _safeMint(address(chromadinEscrow), totalSupplyCount);
+            chromadinEscrow.deposit(totalSupplyCount, true);
         }
 
         emit BatchTokenMinted(address(chromadinEscrow), tokenIds, _uri);
