@@ -55,7 +55,7 @@ const main = async () => {
     // const chromadinMarketplace = await ChromadinMarketplace.deploy(
     //   "0xA3C2F7ba49513Ae46d44D074679f52cAEF7E721B",
     //   "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
-    //   "0x115655bDd3CCf1979205A14796CD88DCBD362D7a",
+    //   "0x168824c8695e53Ae52A542410C84C6f17Da35f98",
     //   "Chromadin Marketplace",
     //   "CHROM"
     // );
@@ -111,10 +111,10 @@ const main = async () => {
     //   address: "0x3A7C16d2061D0CE97BD82C22F9E105223d8195F9",
     //   constructorArguments: ["0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD"],
     // });
-    await run(`verify:verify`, {
-      address: "0x168824c8695e53Ae52A542410C84C6f17Da35f98",
-      constructorArguments: ["0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD"],
-    });
+    // await run(`verify:verify`, {
+    //   address: "0x168824c8695e53Ae52A542410C84C6f17Da35f98",
+    //   constructorArguments: ["0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD"],
+    // });
     // await run(`verify:verify`, {
     //   address: "0xA3C2F7ba49513Ae46d44D074679f52cAEF7E721B",
     //   constructorArguments: [
@@ -125,16 +125,26 @@ const main = async () => {
     //     "CHROC",
     //   ],
     // });
-    // await run(`verify:verify`, {
-    //   address: "0x88fa5a97345ba5e827Cf32F437f46449C5D68754",
-    //   constructorArguments: [
-    //     "0xA3C2F7ba49513Ae46d44D074679f52cAEF7E721B",
-    //     "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
-    //     "0x115655bDd3CCf1979205A14796CD88DCBD362D7a",
-    //     "Chromadin Marketplace",
-    //     "CHROM",
-    //   ],
-    // });
+    await run(`verify:verify`, {
+      address: "0xE09924D5740E8A294Dd41925653b9F1A366eb501",
+      constructorArguments: [
+        "0x824eABbE8c32aA045e2d81d4a253ACa936e2e934",
+        "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+        "0x168824c8695e53ae52a542410c84c6f17da35f98",
+        "Chromadin Marketplace",
+        "CHROM",
+      ],
+    });
+    await run(`verify:verify`, {
+      address: "0x36BBFc9C082E9817042A0923A68fc94d2E4143F0",
+      constructorArguments: [
+        "0xA3C2F7ba49513Ae46d44D074679f52cAEF7E721B",
+        "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+        "0x168824c8695e53Ae52A542410C84C6f17Da35f98",
+        "Chromadin Marketplace",
+        "CHROM",
+      ],
+    });
     // await run(`verify:verify`, {
     //   address: "0xd68E8FD1dffC8F09b27b2973d06027D9E96e9d20",
     //   constructorArguments: [

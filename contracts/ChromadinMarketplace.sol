@@ -107,14 +107,6 @@ contract ChromadinMarketplace {
             }
         }
 
-        uint256 buyerBalance = IERC20(_chosenTokenAddress).balanceOf(
-            msg.sender
-        );
-        require(
-            buyerBalance >= totalPrice,
-            "ChromadinMarketplace: Insufficient balance"
-        );
-
         uint256 allowance = IERC20(_chosenTokenAddress).allowance(
             msg.sender,
             address(this)
