@@ -169,7 +169,7 @@ contract ChromadinCollection {
         uint256[] memory tokenIds = new uint256[](_amount);
 
         for (uint256 i = 0; i < _amount; i++) {
-            tokenIds[i] = chromadinNFT.totalSupply() + i + 1;
+            tokenIds[i] = chromadinNFT.totalSupplyCount() + i + 1;
         }
 
         Collection memory newCollection = Collection({
