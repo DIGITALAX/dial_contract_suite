@@ -18,13 +18,25 @@ const main = async () => {
     // );
     // const test = await ethers.getContractFactory("TestToken");
     // const testToken = await test.deploy();
-    const WAIT_BLOCK_CONFIRMATIONS = 20;
+    // const ManufactoryWaitlist = await ethers.getContractFactory(
+    //   "TheManufactoryWaitlist"
+    // );
+    // const manufactoryWaitlist = await ManufactoryWaitlist.deploy(
+    //   "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+    //   "ipfs://QmPSC7JRf8YaJz6KZmWx6rRxdJpCiD2Jw4rKwxJ3fc7MGF"
+    // );
+    // const WAIT_BLOCK_CONFIRMATIONS = 20;
+    // manufactoryWaitlist.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
+
     // sampler.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
     // accessControl.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
     // theDialWhitelist.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
     // testToken.deployTransaction.wait(WAIT_BLOCK_CONFIRMATIONS);
     // console.log(`Test Token Contract deployed at\n${testToken.address}`);
     // console.log(`Whitelist Contract deployed at\n${theDialWhitelist.address}`);
+    // console.log(
+    //   `Manufactory Waitlist Contract deployed at\n${manufactoryWaitlist.address}`
+    // );
     // console.log(
     //   `Access Control Contract deployed at\n${accessControl.address}`
     // );
@@ -105,19 +117,22 @@ const main = async () => {
     // });
 
     await run(`verify:verify`, {
-      address: "0x7129a0827c925b69Bd99EC82268685a3091F8840",
-      constructorArguments: ["0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55"],
-    });
-    await run(`verify:verify`, {
-      address: "0xe36805ff8b9Bd6Eb8b023aD96dC6dC63C41dB8b0",
+      address: "0xD17C63937aB8c91f57CB5bB1dD9B3480513bC1a9",
       constructorArguments: [
-        "0x7129a0827c925b69Bd99EC82268685a3091F8840",
-        "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-        "0x5A2099eD5A12C74C9B7A5d5Fac17252c2B29560F",
-        "Chromadin Collection",
-        "CHROC",
+        "0xa376FdE1e0033a2624d95E3D4345aAd32d5fE1cD",
+        "ipfs://QmPSC7JRf8YaJz6KZmWx6rRxdJpCiD2Jw4rKwxJ3fc7MGF",
       ],
     });
+    // await run(`verify:verify`, {
+    //   address: "0xe36805ff8b9Bd6Eb8b023aD96dC6dC63C41dB8b0",
+    //   constructorArguments: [
+    //     "0x7129a0827c925b69Bd99EC82268685a3091F8840",
+    //     "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
+    //     "0x5A2099eD5A12C74C9B7A5d5Fac17252c2B29560F",
+    //     "Chromadin Collection",
+    //     "CHROC",
+    //   ],
+    // });
     // await run(`verify:verify`, {
     //   address: "0xCA2e188436454C06b296e7ab0588920aE9500b9f",
     //   constructorArguments: [
@@ -128,36 +143,36 @@ const main = async () => {
     //     "CHROM",
     //   ],
     // });
-    await run(`verify:verify`, {
-      address: "0x0EcF9f53a916b9d8BcDED673F88B474FE3b2beAA",
-      constructorArguments: [
-        "0xe36805ff8b9Bd6Eb8b023aD96dC6dC63C41dB8b0",
-        "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-        "0x7129a0827c925b69Bd99EC82268685a3091F8840",
-        "Chromadin Marketplace",
-        "CHROM",
-      ],
-    });
-    await run(`verify:verify`, {
-      address: "0xefe47d8107A60925F01701c64B8d44aD22B83332",
-      constructorArguments: [
-        "0xe36805ff8b9Bd6Eb8b023aD96dC6dC63C41dB8b0",
-        "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-        "Chromadin Drop",
-        "CHROD",
-      ],
-    });
-    await run(`verify:verify`, {
-      address: "0x6735f3a51DB6619D5904f616171b559e49125ee2",
-      constructorArguments: [
-        "0xe36805ff8b9Bd6Eb8b023aD96dC6dC63C41dB8b0",
-        "0x0EcF9f53a916b9d8BcDED673F88B474FE3b2beAA",
-        "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
-        "0x7129a0827c925b69Bd99EC82268685a3091F8840",
-        "Chromadin Escrow",
-        "CHROE",
-      ],
-    });
+    // await run(`verify:verify`, {
+    //   address: "0x0EcF9f53a916b9d8BcDED673F88B474FE3b2beAA",
+    //   constructorArguments: [
+    //     "0xe36805ff8b9Bd6Eb8b023aD96dC6dC63C41dB8b0",
+    //     "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
+    //     "0x7129a0827c925b69Bd99EC82268685a3091F8840",
+    //     "Chromadin Marketplace",
+    //     "CHROM",
+    //   ],
+    // });
+    // await run(`verify:verify`, {
+    //   address: "0xefe47d8107A60925F01701c64B8d44aD22B83332",
+    //   constructorArguments: [
+    //     "0xe36805ff8b9Bd6Eb8b023aD96dC6dC63C41dB8b0",
+    //     "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
+    //     "Chromadin Drop",
+    //     "CHROD",
+    //   ],
+    // });
+    // await run(`verify:verify`, {
+    //   address: "0x6735f3a51DB6619D5904f616171b559e49125ee2",
+    //   constructorArguments: [
+    //     "0xe36805ff8b9Bd6Eb8b023aD96dC6dC63C41dB8b0",
+    //     "0x0EcF9f53a916b9d8BcDED673F88B474FE3b2beAA",
+    //     "0x90133B9fE1E2a72F8e3F8D19656c93644c9A6B55",
+    //     "0x7129a0827c925b69Bd99EC82268685a3091F8840",
+    //     "Chromadin Escrow",
+    //     "CHROE",
+    //   ],
+    // });
     // await run(`verify:verify`, {
     //   address: "0x948ed9CD14Ce2B60Cee4bca0BCe1a65B95BD34d2",
     //   constructorArguments: [

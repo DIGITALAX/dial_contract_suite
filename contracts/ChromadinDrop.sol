@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: UNLICENSE
 
 pragma solidity ^0.8.9;
 
@@ -133,8 +133,7 @@ contract ChromadinDrop {
             "ChromadinDrop: Drop does not exist"
         );
         require(
-            collectionIdToDrop[_collectionId] == 0 ||
-                collectionIdToDrop[_collectionId] == _dropId,
+            collectionIdToDrop[_collectionId] == 0,
             "ChromadinDrop: Collection is already part of another existing drop"
         );
 

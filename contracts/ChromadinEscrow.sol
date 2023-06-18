@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: UNLICENSE
 
 pragma solidity ^0.8.9;
 
@@ -117,10 +117,11 @@ contract ChromadinEscrow is ERC721Holder {
         }
     }
 
-    function updateChromadinMarketplace(
-        address _newChromadinMarketplace
-    ) external onlyAdmin {
-        address oldAddress = address(accessControl);
+    function updateChromadinMarketplace(address _newChromadinMarketplace)
+        external
+        onlyAdmin
+    {
+        address oldAddress = address(chromadinMarketplace);
         chromadinMarketplace = ChromadinMarketplace(_newChromadinMarketplace);
         emit ChromadinMarketplaceUpdated(
             oldAddress,
@@ -129,9 +130,10 @@ contract ChromadinEscrow is ERC721Holder {
         );
     }
 
-    function updateChromadinCollection(
-        address _newChromadinCollection
-    ) external onlyAdmin {
+    function updateChromadinCollection(address _newChromadinCollection)
+        external
+        onlyAdmin
+    {
         address oldAddress = address(chromadinCollection);
         chromadinCollection = ChromadinCollection(_newChromadinCollection);
         emit ChromadinCollectionUpdated(
@@ -141,9 +143,10 @@ contract ChromadinEscrow is ERC721Holder {
         );
     }
 
-    function updateAccessControl(
-        address _newAccessControlAddress
-    ) external onlyAdmin {
+    function updateAccessControl(address _newAccessControlAddress)
+        external
+        onlyAdmin
+    {
         address oldAddress = address(accessControl);
         accessControl = AccessControl(_newAccessControlAddress);
         emit AccessControlUpdated(
@@ -153,9 +156,10 @@ contract ChromadinEscrow is ERC721Holder {
         );
     }
 
-    function updateChromadinNFT(
-        address _newChromadinNFTAddress
-    ) external onlyAdmin {
+    function updateChromadinNFT(address _newChromadinNFTAddress)
+        external
+        onlyAdmin
+    {
         address oldAddress = address(chromadinNFT);
         chromadinNFT = ChromadinNFT(_newChromadinNFTAddress);
         emit ChromadinNFTUpdated(
